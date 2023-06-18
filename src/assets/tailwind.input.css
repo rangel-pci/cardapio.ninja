@@ -1,0 +1,7 @@
+@import "tailwindcss/base";
+@import "tailwindcss/utilities";
+
+#nav {
+  width: 100%;
+  max-width: 1140px;
+}
