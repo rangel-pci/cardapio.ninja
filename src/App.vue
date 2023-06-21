@@ -3,5 +3,9 @@ import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <RouterView />
+  <n-loading-bar-provider>
+    <n-notification-provider placement="bottom-left">
+      <RouterView />
+    </n-notification-provider>
+  </n-loading-bar-provider>
 </template>

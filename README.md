@@ -44,3 +44,9 @@ npm run build
 ```sh
 npm run lint
 ```
+
+### TailwindCSS build
+
+```sh
+npx tailwindcss -i ./src/assets/tailwind.input.css -o ./dist/output.css --watch
+```
