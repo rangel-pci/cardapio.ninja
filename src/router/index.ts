@@ -24,7 +24,7 @@ const router = createRouter({
       path: '/app/minha-area',
       name: 'my-area',
       meta: { requiresAuth: true },
-      component: () => import('../views/app/HomeView.vue')
+      component: () => import('../views/app/home/HomeView.vue')
     },
     { path: '/:catchAll(.*)', redirect: { name: 'home' } },
   ]

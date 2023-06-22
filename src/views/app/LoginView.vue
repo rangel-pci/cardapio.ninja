@@ -39,12 +39,6 @@ const handleLogin = async () => {
             })
         })
     })
-    // const data = error.response?.data as ResponseDefault
-    
-    // notification.error({
-    //   content: 'Erro',
-    //   meta: data.message,
-    // })
   })
 }
 </script>
