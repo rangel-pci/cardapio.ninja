@@ -13,18 +13,26 @@ const router = createRouter({
     {
       path: '/app/login',
       name: 'login',
+      meta: { title: 'Login' },
       component: () => import('../views/app/LoginView.vue')
     },
     {
       path: '/app/cadastro',
       name: 'register',
+      meta: { title: 'Cadastro' },
       component: () => import('../views/app/RegisterView.vue')
     },
     {
       path: '/app/minha-area',
       name: 'my-area',
-      meta: { requiresAuth: true },
-      component: () => import('../views/app/home/HomeView.vue')
+      meta: { requiresAuth: true, title: 'Meus cardápios' },
+      component: () => import('../views/app/home/IndexView.vue')
+    },
+    {
+      path: '/app/gerenciar/:id',
+      name: 'manage-establishment',
+      meta: { requiresAuth: true, title: 'Gerenciar Cardápio' },
+      component: () => import('../views/app/establishment/IndexView.vue')
     },
     { path: '/:catchAll(.*)', redirect: { name: 'home' } },
   ]

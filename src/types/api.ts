@@ -3,7 +3,7 @@ type ResponsePaginated = {
   first_page_url: string,
   last_page_url: string,
   prev_page_url: string,
-  nex_page_url: string,
+  next_page_url: string,
   path: string,
   per_page: number,
   from: number,
@@ -21,6 +21,27 @@ type ResponseLogin = {
   token_type: string,
   expires_in: number,
 }
+type Store = {
+  contact?: {
+    address?: string,
+    email?: string,
+    open_closed?: string,
+    open?: number[],
+    close?: number[],
+    telephone?: string,
+    whtasapp?: string,
+  },
+  modules?: {
+    title?: string,
+    text?: string,
+    products_id?: number[],
+  }[],
+  theme?: string,
+}
+type Text = {
+  title?: string,
+  description?: string,
+}
 type Establishment = {
   id: number,
   name: string,
@@ -30,9 +51,24 @@ type Establishment = {
   created_at: string,
   updated_at: string,
   image: string,
-  store: string,
-  text: string,
+  store: Store,
+  text: Text,
   user_id: number,
+}
+type Product = {
+  id: number,
+  name: string,
+  image: string,
+  created_at: string,
+  updated_at: string,
+  description: string,
+  establishment_id: number,
+  price_small: number,
+  price_medium: number,
+  price_big: number,
+}
+type ResponseProduct = ResponsePaginated & {
+  data: Product[]
 }
 type ResponseEstablishment = ResponsePaginated & {
   data: Establishment[]
@@ -43,5 +79,7 @@ export type {
   ResponseLogin,
   ResponseEstablishment,
   Establishment,
-  ResponsePaginated
+  ResponsePaginated,
+  ResponseProduct,
+  Product
 }

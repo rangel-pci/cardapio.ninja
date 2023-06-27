@@ -11,11 +11,18 @@ type RouteLocationNormalizedExtended = RouteLocationNormalized & {
 }
 
 const navigationGuard = async (to: RouteLocationNormalizedExtended) => {
+    to.meta?.title && (document.title = to.meta.title as string + ' - ' + document.title)
+
     const authStore = useAuthStore()
     if(to.meta?.requiresAuth) {
         if(!authStore.token){return { name: 'login' }}
         const newToken = await refreshToken(authStore.token)
-        authStore.setToken(newToken ? newToken as string : undefined)
+        if(newToken){ 
+            authStore.setToken(newToken as string)
+        }else{
+            authStore.setToken(undefined)
+            return { name: 'login' }
+        }
     }else{
         if(authStore.token) {
             return { name: 'my-area' }
