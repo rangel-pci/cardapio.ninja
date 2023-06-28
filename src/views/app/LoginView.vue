@@ -62,6 +62,7 @@ const handleLogin = async () => {
 
         <label for="password">Senha</label>
         <n-input
+          @keydown.enter="handleLogin"
           class="mb-3"
           id="password"
           type="password"
@@ -71,7 +72,7 @@ const handleLogin = async () => {
         />
         
         <div class="flex justify-center mt-2">
-          <n-button type="primary" class="flex-1" @click="handleLogin" :disabled="account.email.length === 0 || account.password.length === 0 || isLoading">Entrar</n-button>
+          <n-button type="primary" class="flex-1" @click="handleLogin" :loading="isLoading">Entrar</n-button>
         </div>
       </form>
     </n-card>

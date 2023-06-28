@@ -26,8 +26,10 @@ type Store = {
     address?: string,
     email?: string,
     open_closed?: string,
-    open?: number[],
-    close?: number[],
+    open_close: {
+      open: string,
+      close: string,
+    }[],
     telephone?: string,
     whtasapp?: string,
   },
@@ -36,13 +38,15 @@ type Store = {
     text?: string,
     products_id?: number[],
   }[],
+  notice?: string,
+  minimum_order?: number,
   theme?: string,
 }
 type Text = {
   title?: string,
   description?: string,
 }
-type Establishment = {
+type ApiResponseEstablishment = {
   id: number,
   name: string,
   link_name: string,
@@ -51,9 +55,13 @@ type Establishment = {
   created_at: string,
   updated_at: string,
   image: string,
+  store: string,
+  text: string,
+  user_id: number,
+}
+type Establishment = ApiResponseEstablishment & {
   store: Store,
   text: Text,
-  user_id: number,
 }
 type Product = {
   id: number,
@@ -71,15 +79,16 @@ type ResponseProduct = ResponsePaginated & {
   data: Product[]
 }
 type ResponseEstablishment = ResponsePaginated & {
-  data: Establishment[]
+  data: ApiResponseEstablishment[]
 }
 
 export type {
   ResponseDefault,
   ResponseLogin,
   ResponseEstablishment,
-  Establishment,
+  ApiResponseEstablishment,
   ResponsePaginated,
   ResponseProduct,
-  Product
+  Product,
+  Establishment
 }

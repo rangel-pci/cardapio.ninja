@@ -18,6 +18,7 @@ onMounted(() => {
 const APP_URL = import.meta.env.VITE_APP_URL
 const loading = useLoadingBar()
 const isLoading = ref(true)
+const isLoadingSubmit = ref(false)
 const establishments = ref<Establishment[]>([])
 const notification = useNotification()
 const authStore = useAuthStore()
@@ -31,19 +32,19 @@ const defaultEstablishmentData = await getDefaultEstablishmentData()
 
 const handleSubmit = async () => {
   loading.start()
-  isLoading.value = true
+  isLoadingSubmit.value = true
   await ApiService.post('/establishments', 
     { ...form, ...defaultEstablishmentData }, 
     { headers: { Authorization: `Bearer ${authStore.token}`, "Content-Type": 'multipart/form-data' } }
   )
   .then(() => {
     loading.finish()
-    isLoading.value = false
+    isLoadingSubmit.value = false
     getEstablishments()
   })
   .catch((error: AxiosError) => {
     loading.error()
-    isLoading.value = false
+    isLoadingSubmit.value = false
 
     ErrorHandler(error, (errorMessages: string[]) => {
         errorMessages.forEach(msg => {
@@ -68,6 +69,7 @@ const getEstablishments = async () => {
   })
   .catch((error: AxiosError) => {
     loading.error()
+    isLoading.value = false
 
     if(error.response?.status === 404){return showNewEstablishmentForm.value = true}
     ErrorHandler(error, (errorMessages: string[]) => {
@@ -125,7 +127,7 @@ const getEstablishments = async () => {
         </div>
         
         <div class="flex justify-center mt-2">
-          <n-button type="primary" class="flex-1" @click="handleSubmit" :disabled="isLoading">Continuar</n-button>
+          <n-button type="primary" class="flex-1" @click="handleSubmit" :loading="isLoadingSubmit">Continuar</n-button>
         </div>
       </form>
     </n-card>

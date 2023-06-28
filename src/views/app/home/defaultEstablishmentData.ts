@@ -1,13 +1,11 @@
-import { ApiService } from "@/services/ApiService"
-
 const defaultEstablishmentData = {
     store: JSON.stringify({
         "contact": {
-            "telephone": "(00) 0000-0000",
-            "whatsapp": "(00) 0000-0000",
+            "telephone": "61111111111",
+            "whatsapp": "61111111111",
             "address": "Seu endereço aqui",
             "email": "",
-            "open_closed": "Aberto de segunda a sábado de 8h às 17h.",
+            "open_closed": "",
             "open_close": [
                 {open: '', close: ''},
                 {open: '8:0', close: '23:59'},
@@ -18,7 +16,9 @@ const defaultEstablishmentData = {
                 {open: '8:30', close: '12:30'},
             ],
         },
-        "theme": "#9E6A1A",
+        "notice": "Caro cliente, favor avisar caso precise de troco para pagamento em dinheiro.",
+        "minimum_order": 0,
+        "theme": "#6C5CE7",
         "modules": [
             {
                 "title": "Título do Módulo",
@@ -28,8 +28,8 @@ const defaultEstablishmentData = {
         ]
     }),
     text: JSON.stringify({ 
-        "title": "Um Título", 
-        "description": "Um pequeno texto, descrição, aviso, ou qualquer outra coisa." 
+        "title": "", 
+        "description": "" 
     }),
     image: <File | undefined>undefined,
     banner: <File | undefined>undefined,
