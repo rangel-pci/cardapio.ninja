@@ -6,11 +6,10 @@ defineProps<{
     establishment: Establishment,
     openModal: () => void,
     isOpen: boolean,
-    minimumOrderAmount: string | boolean,
-    phone: string | false,
+    minimumOrderAmount: string,
+    phone: string,
     daysOfWeek: string[],
     colorTheme: string,
-    formatTime: (time: string) => string
 }>()
 </script>
 
@@ -22,7 +21,7 @@ defineProps<{
                 <span class="font-medium" v-if="minimumOrderAmount">💲Pedido min. {{minimumOrderAmount}}</span>
                 <span class="font-medium" v-if="phone">📞{{ phone }}</span>
             </div>
-            <div class="font-medium mt-1" v-if="establishment.store.notice">💬Avise se precisar de troco para pagamento em dinheiro.</div>
+            <div class="font-medium mt-1" v-if="establishment.store.notice">💬{{ establishment.store.notice }}</div>
 
             <div class="absolute right-8 -bottom-4 z-10">
                 <n-button type="info" size="large" :color="colorTheme" @click="openModal">
@@ -41,7 +40,7 @@ defineProps<{
                         Horário
                     </n-divider>
                     <div v-for="state, index in establishment.store.contact?.open_close" :key="index">
-                        <span v-if="state.open && state.close"><strong>{{daysOfWeek[index]}}</strong>: {{formatTime(state.open)}} às {{formatTime(state.close)}}</span>
+                        <span v-if="state.open && state.close"><strong>{{daysOfWeek[index]}}</strong>: {{state.open}} às {{state.close}}</span>
                         <span v-else><strong>{{daysOfWeek[index]}}</strong>: Fechado</span>
                     </div>
                     

@@ -1,23 +1,23 @@
 const defaultEstablishmentData = {
     store: JSON.stringify({
         "contact": {
-            "telephone": "61111111111",
-            "whatsapp": "61111111111",
-            "address": "Seu endereço aqui",
+            "telephone": "(61) 99999-9999",
+            "whatsapp": "(61) 99999-9999",
+            "address": "Rua 00, Quadra 00, Lote 00, Bairro, Cidade - UF",
             "email": "",
             "open_closed": "",
             "open_close": [
                 {open: '', close: ''},
-                {open: '8:0', close: '23:59'},
-                {open: '8:0', close: '23:59'},
-                {open: '8:0', close: '23:59'},
-                {open: '8:0', close: '23:59'},
-                {open: '8:0', close: '23:59'},
-                {open: '8:30', close: '12:30'},
+                {open: '08:00', close: '23:59'},
+                {open: '08:00', close: '23:59'},
+                {open: '08:00', close: '23:59'},
+                {open: '08:00', close: '23:59'},
+                {open: '08:00', close: '23:59'},
+                {open: '08:00', close: '23:59'},
             ],
         },
         "notice": "Caro cliente, favor avisar caso precise de troco para pagamento em dinheiro.",
-        "minimum_order": 0,
+        "minimum_order": "R$ 0,00",
         "theme": "#6C5CE7",
         "modules": [
             {

@@ -7,9 +7,9 @@ import type { UploadFileInfo } from 'naive-ui';
         loading: boolean,
         show: boolean,
         bannerSection: BannerSection,
-        handleImageBeforeUpload: (data: { file: UploadFileInfo }) => boolean,
-        handleBannerBeforeUpload: (data: { file: UploadFileInfo }) => boolean,
-        handleSave: (type: string) => void
+        handleImageBeforeUpload: (data: { file: UploadFileInfo } | null) => boolean,
+        handleBannerBeforeUpload: (data: { file: UploadFileInfo } | null) => boolean,
+        handleSave: (type: string, callback: Function | null) => void
     }>()
 </script>
 
@@ -35,6 +35,7 @@ import type { UploadFileInfo } from 'naive-ui';
           <label for="logo">Logomarca
             <n-upload
               @before-upload="handleImageBeforeUpload"
+              @remove="handleImageBeforeUpload(null)"
               list-type="image-card"
               :max="1"
               :default-upload="false"
@@ -47,7 +48,8 @@ import type { UploadFileInfo } from 'naive-ui';
 
           <label for="banner">Banner
             <n-upload
-            @before-upload="handleBannerBeforeUpload"
+              @before-upload="handleBannerBeforeUpload"
+              @remove="handleBannerBeforeUpload(null)"
               list-type="image-card"
               :max="1"
               :default-upload="false"
@@ -70,7 +72,7 @@ import type { UploadFileInfo } from 'naive-ui';
       
       <template #footer>
         <div class="flex justify-end gap-2">
-          <n-button type="primary" @click="handleSave('banner')" :loading="loading">Salvar</n-button>
+          <n-button type="primary" @click="handleSave('banner', () => $emit('close'))" :loading="loading">Salvar</n-button>
           <n-button type="primary" ghost @click="$emit('close')">Cancelar</n-button>
         </div>
       </template>

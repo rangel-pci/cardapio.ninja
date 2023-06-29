@@ -34,7 +34,7 @@ const products = ref<Product[]>([])
 const establishmentId = router.currentRoute.value.params.id
 const isOpen = ref(false)
 const showBannerSectionModal = ref(false)
-const showInformationSectionModal = ref(true)
+const showInformationSectionModal = ref(false)
 const establishmentFormLoading = ref(false)
 
 const bannerSection = reactive<BannerSection>({
@@ -44,7 +44,7 @@ const bannerSection = reactive<BannerSection>({
 })
 const informationSection = reactive<InformationSection>({
   notice: '',
-  minimum_order: 0,
+  minimum_order: 'R$ 0,00',
   contact: {
     address: '',
     email: '',
@@ -58,33 +58,14 @@ const informationSection = reactive<InformationSection>({
       {open: '',close: ''},
     ],
     telephone: '',
-    whtasapp: '',
+    whatsapp: '',
   },
 })
 
 const daysOfWeek = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
 const colorTheme = computed(() => {
-  const color = establishment.value?.store?.theme ?? '6C5CE7'
+  const color = establishment.value?.store?.theme ?? '#6C5CE7'
   return color
-})
-const formatTime = (time: string) =>{
-  const hour = time.split(':')[0]
-  const minute = time.split(':')[1]
-  return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`
-}
-const minimumOrderAmount = computed(() => {
-  const amount = establishment.value?.store?.minimum_order ?? 0
-  return amount > 0 ? amount.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'}) : false
-})
-const phone = computed(() => {
-  const phone = establishment.value?.store?.contact?.telephone
-  if(!phone){
-    return false
-  }
-  const ddd = phone.substring(0, 2)
-  const first = phone.substring(2, 7)
-  const last = phone.substring(7, 11)
-  return `(${ddd}) ${first}-${last}`
 })
 const setIsOpen = () => {
   const now = new Date()
@@ -128,17 +109,19 @@ const openInformationSectionModal = () => {
     }
   })
   informationSection.notice = establishment.value?.store.notice ?? ''
-  informationSection.minimum_order = establishment.value?.store?.minimum_order ?? 0
+  informationSection.minimum_order = establishment.value?.store?.minimum_order ?? ''
   informationSection.contact = {
     address: establishment.value?.store?.contact?.address ?? '',
     email: establishment.value?.store?.contact?.email ?? '',
     telephone: establishment.value?.store?.contact?.telephone ?? '',
-    whtasapp: establishment.value?.store?.contact?.whtasapp ?? '',
+    whatsapp: establishment.value?.store?.contact?.whatsapp ?? '',
     open_close: temp,
   }
   showInformationSectionModal.value = true
 }
-const handleImageBeforeUpload = (data: { file: UploadFileInfo }) => {
+const handleImageBeforeUpload = (data: { file: UploadFileInfo } | null) => {
+  if(!data){bannerSection.image = null; return true }
+
   const file = data.file.file
   if(!file){
     return false
@@ -150,17 +133,21 @@ const handleImageBeforeUpload = (data: { file: UploadFileInfo }) => {
     })
     return false
   }
-  if(file.size > 1000000){
+  if(file.size > 2000000){
     notification.error({
       content: 'Erro',
-      meta: 'Tamanho máximo de imagem é 1MB',
+      meta: 'Tamanho máximo de imagem é 2MB',
     })
     return false
   }
+  
   bannerSection.image = file
+  console.log(file)
   return true
 }
-const handleBannerBeforeUpload = (data: { file: UploadFileInfo }) => {
+const handleBannerBeforeUpload = (data: { file: UploadFileInfo } | null) => {
+  if(!data){bannerSection.banner = null; return true }
+
   const file = data.file.file
   if(!file){
     return false
@@ -172,31 +159,56 @@ const handleBannerBeforeUpload = (data: { file: UploadFileInfo }) => {
     })
     return false
   }
-  if(file.size > 1000000){
+  if(file.size > 2000000){
     notification.error({
       content: 'Erro',
-      meta: 'Tamanho máximo de imagem é 1MB',
+      meta: 'Tamanho máximo de imagem é 2MB',
     })
     return false
   }
   bannerSection.banner = file
   return true
 }
-const handleSave = (type: string) => {
+const handleSave = async (type: string, callback: Function | null = null) => {
   establishmentFormLoading.value = true
   //eslint-disable-next-line
   const {image, banner, ...rest } = establishment.value as {image: string, banner: string}
   const data = {...rest, store: JSON.stringify(establishment.value?.store), text: JSON.stringify(establishment.value?.text)} as EstablishmentFormData
-  if(type == 'bannerd'){
+  if(type == 'banner'){
     data.name = bannerSection.name
     bannerSection.image && (data.image = bannerSection.image)
     bannerSection.banner && (data.banner = bannerSection.banner)
-  }if(type == 'banner'){
+  }else if(type == 'information'){
     data.store = JSON.stringify({modules: establishment.value?.store.modules, ...informationSection})
   }
 
-  establishmentFormLoading.value = false
-  console.log(data)
+  await ApiService.post('/establishments/' + establishmentId, data, {headers: { Authorization: `Bearer ${authStore.token}`, "Content-Type": "multipart/form-data" }})
+  .then(res => {
+    const apiRes = res.data.data.establishment as ApiResponseEstablishment
+    responseEstablishment.value = apiRes
+    const store = JSON.parse(apiRes.store)
+    const text = JSON.parse(apiRes.text)
+    establishment.value = {
+      ...apiRes,
+      store,
+      text
+    }
+
+    establishmentFormLoading.value = false
+    callback && callback()
+  })
+  .catch((error: AxiosError) => {
+    establishmentFormLoading.value = false
+  
+    ErrorHandler(error, (errorMessages: string[]) => {
+        errorMessages.forEach(msg => {
+            notification.error({
+                content: 'Erro',
+                meta: msg,
+            })
+        })
+    })
+  })
 }
 
 const getEstablishment = async () => {
@@ -270,10 +282,10 @@ const getProducts = async (establishmentId: number, nextPage: number = 1) => {
         :openModal="openInformationSectionModal"
         :days-of-week="daysOfWeek" 
         :establishment="establishment" 
-        :format-time="formatTime" 
         :is-open="isOpen" 
-        :minimum-order-amount="minimumOrderAmount"
-        :phone="phone"
+        :minimum-order-amount="establishment.store.minimum_order ?? ''"
+        :whatsapp="establishment.store.contact?.whatsapp ?? ''"
+        :phone="establishment.store.contact?.telephone ?? ''"
         :colorTheme="colorTheme"
       />
     </div>
@@ -295,13 +307,13 @@ const getProducts = async (establishmentId: number, nextPage: number = 1) => {
     :handle-save="handleSave"
     :loading="establishmentFormLoading"
     :show="showInformationSectionModal"
-    @update-informationSection-notice="(notice: string) => informationSection.notice = notice"
-    @close="showInformationSectionModal = false"
+    :daysOfWeek="daysOfWeek"
+    @update-informationSection-notice="(value: string) => informationSection.notice = value"
+    @update-informationSection-whatsapp="(value: string) => informationSection.contact.whatsapp = value"
+    @update-informationSection-telephone="(value: string) => informationSection.contact.telephone = value"
+    @update-informationSection-minimum_order="(value: string) => informationSection.minimum_order = value"
+    @update-informationSection-address="(value: string) => informationSection.contact.address = value"
+    @update-informationSection-open-close="(hour: string, min: string, index: number) => informationSection.contact.open_close[index] = {open: hour, close: min}"
+    @onClose="showInformationSectionModal = false"
   />
 </template>
-
-<style scoped>
-.text-shadow{
-  text-shadow: 0 0 10px #000;
-}
-</style>

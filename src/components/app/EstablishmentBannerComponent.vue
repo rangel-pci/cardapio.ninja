@@ -26,3 +26,10 @@ defineProps<{
       </div>
     </div>
 </template>
+
+<style scoped>
+.text-shadow{
+  /* text-shadow: 0 0 10px #000; */
+  text-shadow: 2px 2px 2px #000;
+}
+</style>

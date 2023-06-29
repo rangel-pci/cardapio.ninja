@@ -5,8 +5,8 @@ type BannerSection = {
 }
 type InformationSection = {
     notice: string,
-    minimum_order: number,
-    contact?: {
+    minimum_order: string,
+    contact: {
         address?: string,
         email?: string,
         open_close: {
@@ -14,7 +14,7 @@ type InformationSection = {
             close: string,
         }[],
         telephone?: string,
-        whtasapp?: string,
+        whatsapp?: string,
     }
 }
 type EstablishmentFormData = {
@@ -25,6 +25,7 @@ type EstablishmentFormData = {
     link_name: string,
     store: string,
     text: string,
+    key: any,
 }
 
 export type {

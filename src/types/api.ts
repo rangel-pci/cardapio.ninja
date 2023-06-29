@@ -31,7 +31,7 @@ type Store = {
       close: string,
     }[],
     telephone?: string,
-    whtasapp?: string,
+    whatsapp?: string,
   },
   modules?: {
     title?: string,
@@ -39,7 +39,7 @@ type Store = {
     products_id?: number[],
   }[],
   notice?: string,
-  minimum_order?: number,
+  minimum_order?: string,
   theme?: string,
 }
 type Text = {
