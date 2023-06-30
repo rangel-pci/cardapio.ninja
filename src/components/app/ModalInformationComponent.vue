@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { InformationSection } from '@/types/establishmentManager';
-import { Close } from '@vicons/ionicons5';
+import { Close, CloseCircle } from '@vicons/ionicons5';
 import axios from 'axios';
 
   defineProps<{
@@ -18,7 +18,8 @@ import axios from 'axios';
     'update-informationSection-minimum_order', 
     'update-informationSection-telephone', 
     'update-informationSection-whatsapp', 
-    'update-informationSection-open-close',
+    'update-informationSection-open',
+    'update-informationSection-close',
     'onClose'
   ])
   
@@ -52,14 +53,6 @@ import axios from 'axios';
       money = money.replace(/(?=(\d{3})+(\D))\B/g, '.')
       money = money.replace(/^(\d)/g, 'R$ $1')
       return money
-    },
-    time: (value: string,) => {
-      if(value.length > 5){return value.slice(0, -1)}
-      let time = value.replace(/\D/g, '')
-      if(time.length > 2){
-        time = time.replace(/(\d{2})$/, ':$1')
-      }
-      return time
     }
   }
 </script>
@@ -142,15 +135,45 @@ import axios from 'axios';
           @input="$emit('update-informationSection-address', $event)"
         ><template #prefix><span class="opacity-25">📍</span></template></n-input>
 
-        <label for="address">Horário de funcionamento</label>
-        <n-input-group v-for="day, index in daysOfWeek" :key="index">
-          <n-input-group-label :style="{width: '100px'}">{{day}}</n-input-group-label>
-          <n-input
-            :value="[informationSection.contact.open_close[index].open,informationSection.contact.open_close[index].close]" 
-            @input="$emit('update-informationSection-open-close', handleMask.time($event[0]), handleMask.time($event[1]), index)"
-            :placeholder="['00:00', '00:00']" pair clearable separator="às" :input-props="{ inputmode:'numeric' }"
-          />
-        </n-input-group>
+        <!-- <label for="address">Horário de funcionamento</label> -->
+        <div class="w-full rounded bg-gray-100 p-2">
+          <n-collapse>
+            <n-collapse-item title="Horário de funcionamento" name="1">
+              <div v-for="day, index in daysOfWeek" :key="index">
+                <div class="mt-1">{{day}}</div>
+                <n-input-group class="text-center">
+                  
+                  <n-time-picker 
+                    :value="informationSection.contact.open_close[index].open" 
+                    @update:formatted-value="(formattedValue: string, value: number) => $emit('update-informationSection-open', value, index)"
+                    format="HH:mm"
+                    :show-icon="false"
+                    input-readonly
+                    placeholder="00:00"
+                    :style="{width: '100%'}"
+                    clearable
+                  />
+                  <div class="flex justify-center items-center bg-white border text-gray-500" :style="{width: '90px'}">às</div>
+                  <n-time-picker 
+                    :value="informationSection.contact.open_close[index].close" 
+                    @update:formatted-value="(formattedValue: string, value: number) => $emit('update-informationSection-close', value, index)"
+                    format="HH:mm"
+                    :show-icon="false"
+                    input-readonly
+                    placeholder="00:00"
+                    :style="{width: '100%'}"
+                    clearable
+                  />
+                  <n-button type="error" secondary @click="$emit('update-informationSection-open', null, index), $emit('update-informationSection-close', null, index)">
+                    <template #icon>
+                      <n-icon><CloseCircle /></n-icon>
+                    </template>
+                  </n-button>
+                </n-input-group>
+              </div>
+            </n-collapse-item>
+          </n-collapse>
+        </div>
       </form>
       
       <template #footer>

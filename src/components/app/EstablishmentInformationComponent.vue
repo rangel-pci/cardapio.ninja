@@ -35,13 +35,17 @@ defineProps<{
 
         <div class="mt-1 w-full px-4 bg-white text-left rounded p-2">
             <n-collapse>
-                <n-collapse-item :title="'Mais informações' + (!isOpen ? ' e horário de funcionamento':'')" name="1">
+                <n-collapse-item :title="(!isOpen ? 'Endereço e horário de funcionamento':'Mais informações')" name="1">
                     <n-divider title-placement="left" dashed>
                         Horário
                     </n-divider>
                     <div v-for="state, index in establishment.store.contact?.open_close" :key="index">
-                        <span v-if="state.open && state.close"><strong>{{daysOfWeek[index]}}</strong>: {{state.open}} às {{state.close}}</span>
-                        <span v-else><strong>{{daysOfWeek[index]}}</strong>: Fechado</span>
+                        <span v-if="state.open && state.close"><div class="font-bold w-[70px] inline-block">{{daysOfWeek[index]}}:</div> 
+                            {{("0" + new Date(state.open).getHours()).slice(-2)}}:{{("0" + new Date(state.open).getMinutes()).slice(-2)}}
+                            às 
+                            {{("0" + new Date(state.close).getHours()).slice(-2)}}:{{("0" + new Date(state.close).getMinutes()).slice(-2)}}
+                        </span>
+                        <span v-else><div class="font-bold w-[70px] inline-block">{{daysOfWeek[index]}}:</div> Fechado</span>
                     </div>
                     
                     <div v-if="establishment.store.contact?.address">

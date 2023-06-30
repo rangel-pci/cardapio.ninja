@@ -49,13 +49,13 @@ const informationSection = reactive<InformationSection>({
     address: '',
     email: '',
     open_close: [
-      {open: '',close: ''},
-      {open: '',close: ''},
-      {open: '',close: ''},
-      {open: '',close: ''},
-      {open: '',close: ''},
-      {open: '',close: ''},
-      {open: '',close: ''},
+      {open: null,close: null},
+      {open: null,close: null},
+      {open: null,close: null},
+      {open: null,close: null},
+      {open: null,close: null},
+      {open: null,close: null},
+      {open: null,close: null},
     ],
     telephone: '',
     whatsapp: '',
@@ -77,10 +77,11 @@ const setIsOpen = () => {
   if(!open || !close){
     return false
   }
-  const openHour = parseInt(open.split(':')[0])
-  const openMinute = parseInt(open.split(':')[1])
-  const closeHour = parseInt(close.split(':')[0])
-  const closeMinute = parseInt(close.split(':')[1])
+
+  const openHour = new Date(open).getHours()
+  const openMinute = new Date(open).getMinutes()
+  const closeHour = new Date(close).getHours()
+  const closeMinute = new Date(close).getMinutes()
 
   if(hour >= openHour && hour <= closeHour){
     if(hour == openHour && minute < openMinute){
@@ -100,12 +101,12 @@ const openBannerSectionModal = () => {
   showBannerSectionModal.value = true
 }
 const openInformationSectionModal = () => {
-  const temp = [] as { open: string, close: string,}[]
+  const temp = [] as { open: number | null, close: number | null}[]
   establishment.value?.store?.contact?.open_close.forEach(open_close => {
     if(open_close){
       temp.push({...open_close})
     }else{
-      temp.push({open: '', close: ''})
+      temp.push({open: null, close: null})
     }
   })
   informationSection.notice = establishment.value?.store.notice ?? ''
@@ -313,7 +314,8 @@ const getProducts = async (establishmentId: number, nextPage: number = 1) => {
     @update-informationSection-telephone="(value: string) => informationSection.contact.telephone = value"
     @update-informationSection-minimum_order="(value: string) => informationSection.minimum_order = value"
     @update-informationSection-address="(value: string) => informationSection.contact.address = value"
-    @update-informationSection-open-close="(hour: string, min: string, index: number) => informationSection.contact.open_close[index] = {open: hour, close: min}"
+    @update-informationSection-open="(hourMin: number | null, index: number) => informationSection.contact.open_close[index].open = hourMin"
+    @update-informationSection-close="(hourMin: number | null, index: number) => informationSection.contact.open_close[index].close = hourMin"
     @onClose="showInformationSectionModal = false"
   />
 </template>

@@ -10,8 +10,8 @@ type InformationSection = {
         address?: string,
         email?: string,
         open_close: {
-            open: string,
-            close: string,
+            open: number | null,
+            close: number | null,
         }[],
         telephone?: string,
         whatsapp?: string,
