@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Establishment } from '@/types/api';
+import type { Establishment } from '@/types/Api';
 import { Brush } from '@vicons/ionicons5';
 
 defineProps<{
@@ -32,4 +32,4 @@ defineProps<{
   /* text-shadow: 0 0 10px #000; */
   text-shadow: 2px 2px 2px #000;
 }
-</style>
+</style>@/types/API@/types/Api

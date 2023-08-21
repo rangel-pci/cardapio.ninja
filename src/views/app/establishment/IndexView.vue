@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, onUnmounted, reactive } from 'vue';
-import { ApiService, ErrorHandler } from '@/services/ApiService'
 import { useLoadingBar, useNotification, type UploadFileInfo } from 'naive-ui'
-import type { AxiosError } from 'axios';
-import type { ResponseProduct, Product, ApiResponseEstablishment, Establishment } from '@/types/api'
-import { useAuthStore } from '@/stores/user'
+import type { ResponseProduct, Product, ApiResponseEstablishment, Establishment } from '@/types/Api'
+import { useAuthStore } from '@/stores/AuthStore'
 import Header from '@/components/app/HeaderComponent.vue'
 import router from '@/router'
 import EstablishmentInformation from '@/components/app/EstablishmentInformationComponent.vue'
 import EstablishmentLinkAndQrCode from '@/components/app/EstablishmentLinkAndQrCodeComponent.vue'
 import EstablishmentBanner from '@/components/app/EstablishmentBannerComponent.vue'
-import type { BannerSection, EstablishmentFormData, InformationSection } from '@/types/establishmentManager';
+import type { BannerSection, EstablishmentFormData, InformationSection } from '@/types/EstablishmentManager';
 import ModalBanner from '@/components/app/ModalBannerComponent.vue';
 import ModalInformation from '@/components/app/ModalInformationComponent.vue';
+import { tryToFetchEstablishment, tryToSaveEstablishment, tryToFetchEstablishmentProducts } from '@/services/EstablishmentService';
+import { ErrorHandler } from '@/utils/ErrorHandler';
 
 onMounted(() => {
   getEstablishment()
@@ -31,7 +31,8 @@ const authStore = useAuthStore()
 const responseEstablishment = ref<ApiResponseEstablishment | null>(null)
 const establishment = ref<Establishment | null>(null)
 const products = ref<Product[]>([])
-const establishmentId = router.currentRoute.value.params.id
+const paramId = router.currentRoute.value.params.id
+const establishmentId = typeof paramId === 'string' ? parseInt(paramId) : parseInt(paramId[0])
 const isOpen = ref(false)
 const showBannerSectionModal = ref(false)
 const showInformationSectionModal = ref(false)
@@ -120,13 +121,7 @@ const openInformationSectionModal = () => {
   }
   showInformationSectionModal.value = true
 }
-const handleImageBeforeUpload = (data: { file: UploadFileInfo } | null) => {
-  if(!data){bannerSection.image = null; return true }
-
-  const file = data.file.file
-  if(!file){
-    return false
-  }
+const checkFileFormatAndSize = (file: File) => {
   if(file.type != 'image/jpeg' && file.type != 'image/png'){
     notification.error({
       content: 'Erro',
@@ -141,7 +136,16 @@ const handleImageBeforeUpload = (data: { file: UploadFileInfo } | null) => {
     })
     return false
   }
-  
+  return true
+}
+const handleImageBeforeUpload = (data: { file: UploadFileInfo } | null) => {
+  if(!data){bannerSection.image = null; return true }
+
+  const file = data.file.file
+  if(!file){
+    return false
+  }
+  if(!checkFileFormatAndSize(file)){return false}
   bannerSection.image = file
   console.log(file)
   return true
@@ -153,20 +157,7 @@ const handleBannerBeforeUpload = (data: { file: UploadFileInfo } | null) => {
   if(!file){
     return false
   }
-  if(file.type != 'image/jpeg' && file.type != 'image/png'){
-    notification.error({
-      content: 'Erro',
-      meta: 'Formato de imagem inválido',
-    })
-    return false
-  }
-  if(file.size > 2000000){
-    notification.error({
-      content: 'Erro',
-      meta: 'Tamanho máximo de imagem é 2MB',
-    })
-    return false
-  }
+  if(!checkFileFormatAndSize(file)){return false}
   bannerSection.banner = file
   return true
 }
@@ -183,8 +174,8 @@ const handleSave = async (type: string, callback: Function | null = null) => {
     data.store = JSON.stringify({modules: establishment.value?.store.modules, ...informationSection})
   }
 
-  await ApiService.post('/establishments/' + establishmentId, data, {headers: { Authorization: `Bearer ${authStore.token}`, "Content-Type": "multipart/form-data" }})
-  .then(res => {
+  const res = await tryToSaveEstablishment(authStore.token, establishmentId, data)
+  if(res.success){
     const apiRes = res.data.data.establishment as ApiResponseEstablishment
     responseEstablishment.value = apiRes
     const store = JSON.parse(apiRes.store)
@@ -193,29 +184,19 @@ const handleSave = async (type: string, callback: Function | null = null) => {
       ...apiRes,
       store,
       text
-    }
-
-    establishmentFormLoading.value = false
+    }    
     callback && callback()
-  })
-  .catch((error: AxiosError) => {
-    establishmentFormLoading.value = false
-  
-    ErrorHandler(error, (errorMessages: string[]) => {
-        errorMessages.forEach(msg => {
-            notification.error({
-                content: 'Erro',
-                meta: msg,
-            })
-        })
-    })
-  })
+  }else if(res.error){
+    loading.error()
+    ErrorHandler(res.error, notification)
+  }
+  establishmentFormLoading.value = false
 }
 
 const getEstablishment = async () => {
   loading.start()
-  await ApiService.get('/establishments/' + establishmentId, {headers: { Authorization: `Bearer ${authStore.token}` }})
-  .then(res => {
+  const res = await tryToFetchEstablishment(authStore.token, establishmentId)
+  if(res.success){
     const apiRes = res.data.data as ApiResponseEstablishment
     responseEstablishment.value = apiRes
     const store = JSON.parse(apiRes.store)
@@ -225,48 +206,29 @@ const getEstablishment = async () => {
       store,
       text
     }
-    getProducts(parseInt(establishmentId as string))
-  })
-  .catch((error: AxiosError) => {
+    getProducts(establishmentId)
+  }else if(res.error){
     loading.error()
-  
-    ErrorHandler(error, (errorMessages: string[]) => {
-        errorMessages.forEach(msg => {
-            notification.error({
-                content: 'Erro',
-                meta: msg,
-            })
-        })
-    })
-  })
+    ErrorHandler(res.error, notification)
+  }
 }
+
 const getProducts = async (establishmentId: number, nextPage: number = 1) => {
   loading.start()
-  const query = '/establishments/' + establishmentId + '/products' + '?page=' + nextPage
-  await ApiService.get(query, {headers: { Authorization: `Bearer ${authStore.token}` }})
-  .then(res => {
+  const res = await tryToFetchEstablishmentProducts(authStore.token, establishmentId, nextPage)
+  if(res.success){
     const apiRes = res.data as ResponseProduct
     products.value.push(...apiRes.data)
-
-    if(products.value.length < apiRes.total){
-      return getProducts(establishmentId, parseInt(apiRes.next_page_url))
-    }
     loading.finish()
     isLoading.value = false
-  })
-  .catch((error: AxiosError) => {
+    if(products.value.length < apiRes.total){
+      await getProducts(establishmentId, nextPage++)
+    }
+  }else if(res.error){
     loading.error()
     isLoading.value = false
-  
-    ErrorHandler(error, (errorMessages: string[]) => {
-      errorMessages.forEach(msg => {
-        notification.error({
-          content: 'Erro',
-          meta: msg,
-        })
-      })
-    })
-  })
+    ErrorHandler(res.error, notification)
+  }
 }
 </script>
 
@@ -318,4 +280,4 @@ const getProducts = async (establishmentId: number, nextPage: number = 1) => {
     @update-informationSection-close="(hourMin: number | null, index: number) => informationSection.contact.open_close[index].close = hourMin"
     @onClose="showInformationSectionModal = false"
   />
-</template>
+</template>@/types/API@/types/EstablishmentManager@/types/Api

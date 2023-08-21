@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import { ApiService, ErrorHandler } from '@/services/ApiService'
 import { useLoadingBar, useNotification } from 'naive-ui';
-import type { AxiosError } from 'axios';
-import type { ResponseLogin } from '@/types/api'
-import { useAuthStore } from '@/stores/user';
+import type { ResponseLogin } from '@/types/Api'
+import { useAuthStore } from '@/stores/AuthStore';
 import router from '@/router';
+import { tryToLogin } from '@/services/AuthService';
+import { ErrorHandler } from '@/utils/ErrorHandler'
 
 const account = reactive({
   email: '',
@@ -19,27 +19,17 @@ const authStore = useAuthStore()
 const handleLogin = async () => {
   loading.start()
   isLoading.value = true
-  await ApiService.post('/auth/login', account)
-  .then(res => {
+  const res = await tryToLogin(account)
+  loading.finish()
+  isLoading.value = false
+  if(res.success){
     const data = res.data as ResponseLogin
     authStore.setToken(data.access_token)
-    loading.finish()
-    isLoading.value = false
     notification.destroyAll()
     router.push({ name: 'my-area' })
-  })
-  .catch((error: AxiosError) => {
-    loading.error()
-    isLoading.value = false
-    ErrorHandler(error, (errorMessages: string[]) => {
-        errorMessages.forEach(msg => {
-            notification.error({
-                content: 'Erro',
-                meta: msg,
-            })
-        })
-    })
-  })
+  }else if(res.error){
+    ErrorHandler(res.error, notification)
+  }
 }
 </script>
 
@@ -79,4 +69,4 @@ const handleLogin = async () => {
 
     <p class="mt-4">Ainda não tem uma conta? <RouterLink :to="{ name: 'register' }" class="text-green-600 underline">Cadastre-se</RouterLink></p>
   </div>
-</template>
+</template>@/stores/AuthStore

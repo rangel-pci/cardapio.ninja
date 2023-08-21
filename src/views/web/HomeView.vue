@@ -39,11 +39,11 @@
             </RouterLink>
           </li>
           <li class="flex text-center w-1/4 ml-8">
-            <a class="flex align-items-center font-medium  px-8 py-2
-            text-white bg-gradient-to-br from-[#6C5CE7] to-[#55EFC4] transition-all hover:shadow-lg hover:shadow-cyan-300" href="#"
+            <RouterLink :to="{ name: 'register' }" class="flex align-items-center font-medium  px-8 py-2 
+              text-white bg-gradient-to-br from-[#6C5CE7] to-[#55EFC4] transition-all hover:shadow-lg hover:shadow-cyan-300" href="#"
             >
-            <span class="my-auto"><div class="text-white mt-2 animate-bounce inline-block">🔥</div> Quero criar meu cardápio digital agora gratuitamente!</span>
-            </a>
+              <span class="my-auto"><div class="text-white mt-2 animate-bounce inline-block">🔥</div> Quero criar meu cardápio digital agora gratuitamente!</span>
+            </RouterLink>
           </li>
         </ul>
       </nav>
@@ -152,7 +152,7 @@
     <footer class="bg-[#6C5CE7]">
       <div class="mx-auto">
         <div class="text-center text-[11px] lg:text-sm p-1 text-white">
-          &copy; {{ new Date().getFullYear() }} <a href="/" class="text-white hover:text-indigo-900">Cardápio.ninja</a> | Desenvolvido e mantido por <a href="https://rangell.me" target="_blank" class="text-white hover:text-indigo-900">rangell.me</a>
+          &copy; {{ new Date().getFullYear() }} <a href="/" class="text-white hover:text-indigo-900">Cardápio.ninja</a>
         </div>
       </div>
     </footer>

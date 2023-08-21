@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Establishment } from '@/types/api';
+import type { Establishment } from '@/types/Api';
 import { DownloadOutline } from '@vicons/ionicons5';
 import Qrcode from 'qrcode.vue';
 
@@ -35,3 +35,4 @@ const downloadQrCode = () => {
         </div>
     </div>
 </template>
+@/types/API@/types/Api

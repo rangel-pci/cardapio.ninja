@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
-import { ApiService, ErrorHandler } from '@/services/ApiService'
 import { useLoadingBar, useNotification } from 'naive-ui';
-import type { AxiosError } from 'axios';
-import type { ResponseEstablishment, Establishment } from '@/types/api';
-import { useAuthStore } from '@/stores/user';
+import type { ResponseEstablishment, Establishment } from '@/types/Api';
+import { useAuthStore } from '@/stores/AuthStore';
 import { HelpCircle, AddCircle } from '@vicons/ionicons5'
 import Header from '@/components/app/HeaderComponent.vue'
 import categoriesList from './categoriesList'
 import getDefaultEstablishmentData from './defaultEstablishmentData';
 import EstablishmentCard from '@/components/app/EstablishmentCardComponent.vue';
+import { tryToCreateEstablishment, tryToFetchUserEstablishments } from '@/services/EstablishmentService';
+import { ErrorHandler } from '@/utils/ErrorHandler';
 
 onMounted(() => {
   getEstablishments()
@@ -33,54 +33,34 @@ const defaultEstablishmentData = await getDefaultEstablishmentData()
 const handleSubmit = async () => {
   loading.start()
   isLoadingSubmit.value = true
-  await ApiService.post('/establishments', 
-    { ...form, ...defaultEstablishmentData }, 
-    { headers: { Authorization: `Bearer ${authStore.token}`, "Content-Type": 'multipart/form-data' } }
-  )
-  .then(() => {
+  const data = { ...form, ...defaultEstablishmentData }
+  const res = await tryToCreateEstablishment(authStore.token, data)
+  if(res.success){
     loading.finish()
     isLoadingSubmit.value = false
     getEstablishments()
-  })
-  .catch((error: AxiosError) => {
-    loading.error()
+  }else if(res.error){
+    loading.finish()
     isLoadingSubmit.value = false
-
-    ErrorHandler(error, (errorMessages: string[]) => {
-        errorMessages.forEach(msg => {
-            notification.error({
-                content: 'Erro',
-                meta: msg,
-            })
-        })
-    })
-  })
+    ErrorHandler(res.error, notification)
+  }
 }
 
 const getEstablishments = async () => {
   loading.start()
-  await ApiService.get('/establishments/my?page=1', {headers: { Authorization: `Bearer ${authStore.token}` }})
-  .then(res => {
+  const res = await tryToFetchUserEstablishments(authStore.token, 1)
+  if(res.success){
     showNewEstablishmentForm.value = false
     const apiRes = res.data.data as ResponseEstablishment
     establishments.value.push(...apiRes.data)
     loading.finish()
     isLoading.value = false
-  })
-  .catch((error: AxiosError) => {
+  }else if(res.error){
     loading.error()
     isLoading.value = false
-
-    if(error.response?.status === 404){return showNewEstablishmentForm.value = true}
-    ErrorHandler(error, (errorMessages: string[]) => {
-        errorMessages.forEach(msg => {
-            notification.error({
-                content: 'Erro',
-                meta: msg,
-            })
-        })
-    })
-  })
+    if(res.error.response?.status === 404){return showNewEstablishmentForm.value = true}
+    ErrorHandler(res.error, notification)
+  }
 }
 </script>
 

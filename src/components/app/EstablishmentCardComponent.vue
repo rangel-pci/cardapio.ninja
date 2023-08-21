@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Establishment } from '@/types/api';
+import type { Establishment } from '@/types/Api';
 import { Brush } from '@vicons/ionicons5';
 
     defineProps<{
@@ -34,4 +34,4 @@ import { Brush } from '@vicons/ionicons5';
             </n-button>
         </router-link>
     </n-card>
-</template>
+</template>@/types/API@/types/Api

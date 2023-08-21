@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { InformationSection } from '@/types/establishmentManager';
+import type { InformationSection } from '@/types/EstablishmentManager';
 import { Close, CloseCircle } from '@vicons/ionicons5';
 import axios from 'axios';
 
@@ -190,4 +190,4 @@ import axios from 'axios';
 .n-modal{
   max-width: 95vw;
 }
-</style>
+</style>@/types/EstablishmentManager

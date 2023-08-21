@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import { ApiService, ErrorHandler } from '@/services/ApiService'
 import { useLoadingBar, useNotification } from 'naive-ui';
-import type { AxiosError } from 'axios';
-import { useAuthStore } from '@/stores/user';
+import { useAuthStore } from '@/stores/AuthStore';
 import router from '@/router';
-import type { ResponseLogin } from '@/types/api';
+import type { ResponseLogin } from '@/types/Api';
+import { tryToCreateUser } from '@/services/UserService';
+import { tryToLogin } from '@/services/AuthService';
+import { ErrorHandler } from '@/utils/ErrorHandler';
 
 const account = reactive({
     name: '',
@@ -20,30 +21,25 @@ const authStore = useAuthStore()
 const handleLogin = async () => {
   loading.start()
   isLoading.value = true
-  await ApiService.post('/users', account)
-  .then(async () => {
-    await ApiService.post('/auth/login', account)
-    .then(res => {
-        const data = res.data as ResponseLogin
+  try{
+    const responseUser = await tryToCreateUser(account)
+    if(responseUser.success){
+      const responseLogin = await tryToLogin(account)
+      if(responseLogin.success){
+        const data = responseLogin.data as ResponseLogin
         authStore.setToken(data.access_token)
-    })
+        notification.destroyAll()
+        router.push({ name: 'my-area' })
+      }else if(responseLogin.error){
+        ErrorHandler(responseLogin.error, notification)
+      }
+    }else if(responseUser.error){
+      ErrorHandler(responseUser.error, notification)
+    }
+  }finally{
     loading.finish()
     isLoading.value = false
-    notification.destroyAll()
-    router.push({ name: 'my-area' })
-  })
-  .catch((error: AxiosError) => {
-    loading.error()
-    isLoading.value = false
-    ErrorHandler(error, (errorMessages: string[]) => {
-        errorMessages.forEach(msg => {
-            notification.error({
-                content: 'Erro',
-                meta: msg,
-            })
-        })
-    })
-  })
+  }
 }
 </script>
 
@@ -94,4 +90,4 @@ const handleLogin = async () => {
 
     <p class="mt-4">Já possui uma conta? <RouterLink :to="{ name: 'login' }" class="text-green-600 underline">Entrar</RouterLink></p>
   </div>
-</template>
+</template>@/types/API@/types/Api@/stores/AuthStore

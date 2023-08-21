@@ -1,8 +1,7 @@
 import type { RouteLocationNormalized } from "vue-router";
-import { useAuthStore } from '../stores/user';
-import { ApiService } from "@/services/ApiService";
-import type { ResponseLogin } from "@/types/api";
-import type { AxiosError } from "axios";
+import { useAuthStore } from '../stores/AuthStore';
+import type { ResponseLogin } from "@/types/Api";
+import { tryToRefreshToken } from "@/services/AuthService";
 
 type RouteLocationNormalizedExtended = RouteLocationNormalized & {
     meta?: {
@@ -11,14 +10,15 @@ type RouteLocationNormalizedExtended = RouteLocationNormalized & {
 }
 
 const navigationGuard = async (to: RouteLocationNormalizedExtended) => {
-    to.meta?.title && (document.title = to.meta.title as string + ' - ' + document.title)
+    to.meta?.title && (document.title = to.meta.title as string + ' - ' + import.meta.env.VITE_APP_NAME)
 
     const authStore = useAuthStore()
     if(to.meta?.requiresAuth) {
         if(!authStore.token){return { name: 'login' }}
-        const newToken = await refreshToken(authStore.token)
-        if(newToken){ 
-            authStore.setToken(newToken as string)
+        const res = await tryToRefreshToken(authStore.token)
+        if(res.success){ 
+            const data = res.data as ResponseLogin
+            authStore.setToken(data.access_token)
         }else{
             authStore.setToken(undefined)
             return { name: 'login' }
@@ -28,18 +28,6 @@ const navigationGuard = async (to: RouteLocationNormalizedExtended) => {
             return { name: 'my-area' }
         }
     }
-}
-
-const refreshToken = async (token: string) => {
-    return await ApiService.post('/auth/refresh', null, { headers: { Authorization: `Bearer ${token}` } })
-    .then(res => {
-        const data = res.data as ResponseLogin
-        return data.access_token
-    })
-    .catch((error: AxiosError) => {
-        console.log(error)
-        return false
-    })
 }
 
 export default navigationGuard

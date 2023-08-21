@@ -1,3 +1,5 @@
+import type { AxiosError } from "axios"
+
 type ResponsePaginated = {
   current_page: number,
   first_page_url: string,
@@ -81,6 +83,12 @@ type ResponseProduct = ResponsePaginated & {
 type ResponseEstablishment = ResponsePaginated & {
   data: ApiResponseEstablishment[]
 }
+type DefaultServiceResponse = {
+  success?: boolean,
+  data?: any,
+  error?: AxiosError,
+}
+
 
 export type {
   ResponseDefault,
@@ -90,5 +98,6 @@ export type {
   ResponsePaginated,
   ResponseProduct,
   Product,
-  Establishment
+  Establishment,
+  DefaultServiceResponse,
 }

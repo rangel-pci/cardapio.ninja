@@ -3,7 +3,7 @@ import { h, type Component } from 'vue';
 import { NIcon, } from 'naive-ui';
 import router from '@/router';
 import { Menu, PersonCircle, ListCircle, LogOutOutline } from '@vicons/ionicons5'
-import { useAuthStore } from '@/stores/user';
+import { useAuthStore } from '@/stores/AuthStore';
 
 const APP_NAME = import.meta.env.VITE_APP_NAME
 const authStore = useAuthStore()
@@ -59,4 +59,4 @@ const options = [
       </template>
     </n-page-header>
   </div>
-</template>
+</template>@/stores/AuthStore

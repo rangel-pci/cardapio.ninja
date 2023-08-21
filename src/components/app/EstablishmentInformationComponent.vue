@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Establishment } from '@/types/api';
+import type { Establishment } from '@/types/Api';
 import { Brush } from '@vicons/ionicons5';
 
 defineProps<{
@@ -67,4 +67,4 @@ defineProps<{
 .n-collapse-item__content-inner{
     padding-top: 0.1rem;
 }
-</style>
+</style>@/types/API@/types/Api
