@@ -21,8 +21,9 @@ const defaultEstablishmentData = {
         "theme": "#6C5CE7",
         "modules": [
             {
-                "title": "Título do Módulo",
-                "text": "Descrição. . .",
+                "order": 0,
+                "title": "Categoria 1",
+                "text": "Descrição...",
                 "products_id": []
             }
         ]

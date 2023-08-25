@@ -23,7 +23,7 @@ defineProps<{
             </div>
             <div class="font-medium mt-1" v-if="establishment.store.notice">💬{{ establishment.store.notice }}</div>
 
-            <div class="absolute right-8 -bottom-4 z-10">
+            <div class="hidden md:block absolute right-8 -bottom-4 z-10">
                 <n-button type="info" size="large" :color="colorTheme" @click="openModal">
                     <template #icon>
                         <n-icon><Brush class="animate-bounce" /></n-icon>

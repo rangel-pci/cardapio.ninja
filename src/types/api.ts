@@ -23,6 +23,12 @@ type ResponseLogin = {
   token_type: string,
   expires_in: number,
 }
+type Module = {
+  order: number,
+  title: string, 
+  text?: string,
+  products_id?: number[]
+}
 type Store = {
   contact?: {
     address?: string,
@@ -35,11 +41,7 @@ type Store = {
     telephone?: string,
     whatsapp?: string,
   },
-  modules?: {
-    title?: string,
-    text?: string,
-    products_id?: number[],
-  }[],
+  modules?: Module[],
   notice?: string,
   minimum_order?: string,
   theme?: string,
@@ -69,16 +71,21 @@ type Product = {
   id: number,
   name: string,
   image: string,
-  created_at: string,
-  updated_at: string,
+  created_at?: string,
+  updated_at?: string,
   description: string,
-  establishment_id: number,
-  price_small: number,
-  price_medium: number,
-  price_big: number,
+  establishment_id?: number,
+  price_small?: number,
+  price_medium?: number,
+  price_big?: number,
 }
 type ResponseProduct = ResponsePaginated & {
   data: Product[]
+}
+type ResponseProductCreateUpdated = ResponsePaginated & {
+  data: {
+    product: Product,
+  }
 }
 type ResponseEstablishment = ResponsePaginated & {
   data: ApiResponseEstablishment[]
@@ -100,4 +107,6 @@ export type {
   Product,
   Establishment,
   DefaultServiceResponse,
+  Module,
+  ResponseProductCreateUpdated
 }

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { BannerSection } from '@/types/EstablishmentManager';
-import { Close, HelpCircle } from '@vicons/ionicons5';
+import { Close } from '@vicons/ionicons5';
 import type { UploadFileInfo } from 'naive-ui';
-import { ref } from 'vue';
 
 defineProps<{
     loading: boolean,
@@ -12,16 +11,6 @@ defineProps<{
     handleBannerBeforeUpload: (data: { file: UploadFileInfo } | null) => boolean,
     handleSave: (type: string, callback: Function | null) => void
 }>()
-
-const defaultBannerImages = [
-  {title: 'Padrão 1', url: 'aaa'},
-  {title: 'Padrão 2', url: 'bbb'},
-  {title: 'Padrão 3', url: 'ccc'},
-  {title: 'Padrão 4', url: 'ddd'},
-  {title: 'Padrão 5', url: 'eee'},
-  {title: 'Padrão 6', url: 'fff'},
-]
-const defaultBannerImage = ref(null)
 </script>
 
 
@@ -72,37 +61,7 @@ const defaultBannerImage = ref(null)
           </label>
         </div>
 
-        <div class="flex flex-col">
-          <div class="flex items-center gap-1">
-            <label for="name">Banner Padrão</label>
-            <n-tooltip trigger="hover" :style="{ maxWidth: '250px' }">
-              <template #trigger>
-                <n-icon class="hover:cursor-pointer" size="large">
-                  <HelpCircle />
-                </n-icon>
-              </template>
-              Caso não tenha um banner com a sua marca, você pode usar um dos nossos.
-            </n-tooltip>
-          </div>
-          <n-radio-group v-model:value="defaultBannerImage" name="radiobuttongroup1">
-            <n-radio-button
-              v-for="bannerImage in defaultBannerImages.slice(0, 3)"
-              :key="bannerImage.title"
-              :value="bannerImage.url"
-              :label="bannerImage.title"
-              class="w-24"
-            />
-          </n-radio-group>
-          <n-radio-group v-model:value="defaultBannerImage" name="radiobuttongroup2" class="mb-3">
-            <n-radio-button
-              v-for="bannerImage in defaultBannerImages.slice(3, 6)"
-              :key="bannerImage.title"
-              :value="bannerImage.url"
-              :label="bannerImage.title"
-              class="w-24"
-            />
-          </n-radio-group>
-        
+        <div class="flex flex-col">        
           <label for="name">Nome</label>
           <n-input
               class="mb-3"
@@ -127,4 +86,4 @@ const defaultBannerImage = ref(null)
 .n-modal{
   max-width: 95vw;
 }
-</style>@/types/EstablishmentManager
+</style>

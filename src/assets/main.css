@@ -10,4 +10,4 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-html, body { height: 100% ; scroll-behavior: smooth; }
+html, body { height: 100% ; scroll-behavior: smooth;background-color: rgb(229, 231, 235); }

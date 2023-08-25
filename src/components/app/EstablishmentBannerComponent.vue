@@ -16,7 +16,7 @@ defineProps<{
       <img :src="establishment.image" :alt="establishment.name" class="ml-4 w-24 h-24 object-cover rounded-[100%] z-10">
       <h1 class="text-white text-2xl font-bold text-shadow uppercase z-10">{{ establishment.name.toUpperCase() }}</h1>
       
-      <div class="absolute right-4 bottom-4">
+      <div class="hidden md:block absolute right-4 bottom-4">
         <n-button type="info" size="large" :color="colorTheme" @click="openModal">
           <template #icon>
             <n-icon><Brush class="animate-bounce" /></n-icon>

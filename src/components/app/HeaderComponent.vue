@@ -43,7 +43,7 @@ const options = [
 </script>
 
 <template>
-  <div class="p-4">
+  <div class="p-4 bg-white">
     <n-page-header :subtitle="APP_NAME">
       <!-- <template #title>
         <h1>Meus Cardápios</h1>

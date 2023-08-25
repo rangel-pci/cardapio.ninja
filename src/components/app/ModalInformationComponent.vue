@@ -190,4 +190,4 @@ import axios from 'axios';
 .n-modal{
   max-width: 95vw;
 }
-</style>@/types/EstablishmentManager
+</style>

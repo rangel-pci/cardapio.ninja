@@ -1,18 +1,25 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, onUnmounted, reactive } from 'vue';
 import { useLoadingBar, useNotification, type UploadFileInfo } from 'naive-ui'
-import type { ResponseProduct, Product, ApiResponseEstablishment, Establishment } from '@/types/Api'
+import type { ResponseProduct, ResponseProductCreateUpdated, Product, ApiResponseEstablishment, Establishment, Module } from '@/types/Api'
 import { useAuthStore } from '@/stores/AuthStore'
 import Header from '@/components/app/HeaderComponent.vue'
 import router from '@/router'
 import EstablishmentInformation from '@/components/app/EstablishmentInformationComponent.vue'
 import EstablishmentLinkAndQrCode from '@/components/app/EstablishmentLinkAndQrCodeComponent.vue'
 import EstablishmentBanner from '@/components/app/EstablishmentBannerComponent.vue'
+import EstablishmentCategories from '@/components/app/EstablishmentCategoriesComponent.vue'
+import EstablishmentProducts from '@/components/app/EstablishmentProductsComponent.vue'
 import type { BannerSection, EstablishmentFormData, InformationSection } from '@/types/EstablishmentManager';
+import ModalCategory from '@/components/app/ModalCategoryComponent.vue';
 import ModalBanner from '@/components/app/ModalBannerComponent.vue';
 import ModalInformation from '@/components/app/ModalInformationComponent.vue';
+import ModalProduct from '@/components/app/ModalProductComponent.vue';
 import { tryToFetchEstablishment, tryToSaveEstablishment, tryToFetchEstablishmentProducts } from '@/services/EstablishmentService';
+import { tryToCreateProduct, tryToSaveProduct } from '@/services/ProductService'
 import { ErrorHandler } from '@/utils/ErrorHandler';
+import { Brush } from '@vicons/ionicons5';
+import type { ProductFormData } from '@/types/Product';
 
 onMounted(() => {
   getEstablishment()
@@ -35,8 +42,12 @@ const paramId = router.currentRoute.value.params.id
 const establishmentId = typeof paramId === 'string' ? parseInt(paramId) : parseInt(paramId[0])
 const isOpen = ref(false)
 const showBannerSectionModal = ref(false)
+const showCategoryModal = ref(false)
+const showProductModal = ref(false)
 const showInformationSectionModal = ref(false)
 const establishmentFormLoading = ref(false)
+const targetProduct = ref<Product | null>(null)
+const targetModule = ref<Module | null>(null)
 
 const bannerSection = reactive<BannerSection>({
   name: '',
@@ -121,6 +132,10 @@ const openInformationSectionModal = () => {
   }
   showInformationSectionModal.value = true
 }
+// const openCategoryModal = () => {
+//   categorySectionModules.value = establishment.value?.store?.modules ? JSON.parse(JSON.stringify(establishment.value?.store?.modules)) : []
+//   showCategoryModal.value = true
+// }
 const checkFileFormatAndSize = (file: File) => {
   if(file.type != 'image/jpeg' && file.type != 'image/png'){
     notification.error({
@@ -161,6 +176,15 @@ const handleBannerBeforeUpload = (data: { file: UploadFileInfo } | null) => {
   bannerSection.banner = file
   return true
 }
+
+const modulesCleanRepeatedProducts = () => {
+  establishment.value?.store.modules?.forEach(module => {
+    if(module.products_id){
+      module.products_id = module.products_id.filter((productId, index, self) => self.indexOf(productId) === index)
+    }
+  })
+}
+
 const handleSave = async (type: string, callback: Function | null = null) => {
   establishmentFormLoading.value = true
   //eslint-disable-next-line
@@ -172,6 +196,9 @@ const handleSave = async (type: string, callback: Function | null = null) => {
     bannerSection.banner && (data.banner = bannerSection.banner)
   }else if(type == 'information'){
     data.store = JSON.stringify({modules: establishment.value?.store.modules, ...informationSection})
+  }else if(type == 'modules'){
+    modulesCleanRepeatedProducts()
+    data.store = JSON.stringify(establishment.value?.store)
   }
 
   const res = await tryToSaveEstablishment(authStore.token, establishmentId, data)
@@ -191,6 +218,76 @@ const handleSave = async (type: string, callback: Function | null = null) => {
     ErrorHandler(res.error, notification)
   }
   establishmentFormLoading.value = false
+}
+
+const addProductIdToModule = (productId: number, moduleName: string) => {
+  if(!establishment.value?.store.modules){return false}
+  const moduleIndex = establishment.value?.store.modules.findIndex(module => module.title == moduleName)
+  if(moduleIndex != undefined && moduleIndex != -1){
+    establishment.value?.store.modules[moduleIndex].products_id?.push(productId)
+    return true
+  }
+  return false
+}
+const removeProductIdFromModule = (productId: number, moduleName: string) => {
+  if(!establishment.value?.store.modules){return false}
+  const moduleIndex = establishment.value?.store.modules.findIndex(module => module.title == moduleName)
+  if(moduleIndex != undefined && moduleIndex != -1){
+    establishment.value!.store.modules[moduleIndex].products_id = establishment.value?.store.modules[moduleIndex].products_id?.filter(id => id != productId)
+  }
+}
+
+const handleSaveProduct = async( 
+  productFormData: ProductFormData, 
+  moduleName: string,
+  targetProduct: Product | null, 
+  targetModule: Module | null,  
+  callback: Function | null
+) => {
+  if(!targetProduct){
+    loading.start()
+    const res = await tryToCreateProduct(authStore.token, establishmentId, productFormData)
+    if(res.success){
+      const apiRes = res.data as ResponseProductCreateUpdated
+      products.value.push(apiRes.data.product)
+      addProductIdToModule(apiRes.data.product.id, moduleName)
+      await handleSave('modules')
+      loading.finish()
+      isLoading.value = false
+      callback && callback()
+    }else if(res.error){
+      loading.error()
+      isLoading.value = false
+      ErrorHandler(res.error, notification)
+    }
+  }else{
+    loading.start()
+    const res = await tryToSaveProduct(authStore.token, establishmentId, targetProduct.id, productFormData)
+    if(res.success){
+      const apiRes = res.data as ResponseProductCreateUpdated
+      const productIndex = products.value.findIndex(product => product.id == apiRes.data.product.id)
+      if(productIndex != undefined && productIndex != -1){
+        products.value[productIndex] = apiRes.data.product
+      }
+      removeProductIdFromModule(targetProduct.id, moduleName)
+      addProductIdToModule(apiRes.data.product.id, moduleName)
+      await handleSave('modules')
+      loading.finish()
+      isLoading.value = false
+      callback && callback()
+    }else if(res.error){
+      loading.error()
+      isLoading.value = false
+      ErrorHandler(res.error, notification)
+    }
+  }
+
+  // if(moduleName.length > 0 && targetModule){
+  //   const moduleIndex = establishment.value?.store.modules.findIndex(module => module.title == moduleName)
+  //   if(moduleIndex != undefined && moduleIndex != -1){
+  //     establishment.value?.store.modules[moduleIndex].products.push(apiRes.data.product[0])
+  //   }
+  // }
 }
 
 const getEstablishment = async () => {
@@ -235,12 +332,20 @@ const getProducts = async (establishmentId: number, nextPage: number = 1) => {
 <template>
   <Header />
   <div class="bg-gray-200 min-h-screen pb-8 flex flex-col items-center" v-if="establishment">
-    <div :class="'py-1 w-full text-center text-white bg-['+colorTheme+']'">Seção de apresentação</div>
+    <button @click="openBannerSectionModal" :class="'py-1 w-full max-w-6xl text-center text-white bg-['+colorTheme+']'">
+      Seção de apresentação <n-icon><Brush class="animate-bounce md:hidden" /></n-icon>
+    </button>
     <EstablishmentBanner :openModal="openBannerSectionModal" :establishment="establishment" :colorTheme="colorTheme"/>
     <div class="mx-auto main-container">
-      <div :class="'py-1 w-full text-center text-white mt-6 bg-['+colorTheme+']'">Esta seção aparece apenas para você</div>
+      <div class="px-4">
+        <div :class="'py-1 w-full text-center text-white mt-6 bg-['+colorTheme+']'">Esta seção aparece apenas para você</div>
+      </div>
       <EstablishmentLinkAndQrCode :establishment="establishment" :colorTheme="colorTheme"/>
-      <div :class="'py-1 w-full text-center text-white mt-6 bg-['+colorTheme+']'">Seção de informações</div>
+      <div class="px-4">
+        <button @click="openInformationSectionModal" :class="'py-1 w-full text-center text-white mt-6 bg-['+colorTheme+']'">
+          Seção de informações <n-icon><Brush class="animate-bounce md:hidden" /></n-icon>
+        </button>
+      </div>
       <EstablishmentInformation 
         :openModal="openInformationSectionModal"
         :days-of-week="daysOfWeek" 
@@ -251,9 +356,46 @@ const getProducts = async (establishmentId: number, nextPage: number = 1) => {
         :phone="establishment.store.contact?.telephone ?? ''"
         :colorTheme="colorTheme"
       />
+      <div class="px-4">
+        <button @click="() => showCategoryModal = true" :class="'py-1 w-full text-center text-white mt-6 bg-['+colorTheme+']'">
+          Seção de Categorias <n-icon><Brush class="animate-bounce md:hidden" /></n-icon>
+        </button>
+      </div>
+      <EstablishmentCategories
+        :openModal="() => showCategoryModal = true"
+        :modules=" establishment.store.modules" 
+        :colorTheme="colorTheme"
+      />
+      <div class="px-4">
+        <div :class="'py-1 w-full text-center text-white mt-6 bg-['+colorTheme+']'">Seção de Produtos</div>
+      </div>
+      <EstablishmentProducts
+        :openModal="() => { targetProduct = null; showProductModal = true }"
+        :products="products" 
+        :colorTheme="colorTheme"
+      />
     </div>
   </div>
 
+  <ModalProduct
+    :colorTheme="colorTheme"
+    :handle-save="handleSaveProduct"
+    :loading="establishmentFormLoading"
+    :show="showProductModal"
+    :modules="establishment?.store.modules ?? []"
+    :targetProduct="targetProduct"
+    :target-module="targetModule"
+    @onClose="() => showProductModal = false"
+  />
+  <ModalCategory
+    :colorTheme="colorTheme"
+    :handle-save="handleSave"
+    :loading="establishmentFormLoading"
+    :show="showCategoryModal"
+    :modules="establishment?.store.modules ?? []"
+    @update-establishment-modules="(updatedModules: Module[]) => establishment!.store.modules = updatedModules"
+    @onClose="() => showCategoryModal = false"
+  />
   <ModalBanner 
     :banner-section="bannerSection" 
     :handle-image-before-upload="handleImageBeforeUpload" 
