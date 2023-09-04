@@ -25,6 +25,11 @@ const props = defineProps<{
     targetModule: Module | null,  
     callback: Function | null
   ) => void
+  handleDelete: (
+    productId: number,
+    targetModule: Module | null,  
+    callback: Function | null 
+  ) => void
 }>()
 
 const emit = defineEmits([
@@ -47,13 +52,13 @@ const handleMaskMoney = (value: string) => {
 
 const module_name = ref<string>('')
 const product = ref<TargetProduct>({
-  id: props.targetProduct?.id || 0,
-  name: props.targetProduct?.name || '',
-  image: props.targetProduct?.image || '',
-  description: props.targetProduct?.description || '',
-  price_small: props.targetProduct?.price_small ? handleMaskMoney(props.targetProduct?.price_small+'') : '',
-  price_medium: props.targetProduct?.price_medium ? handleMaskMoney(props.targetProduct?.price_medium+'') : '',
-  price_big: props.targetProduct?.price_big ? handleMaskMoney(props.targetProduct?.price_big+'') : '',
+  id: 0,
+  name: '',
+  image: '',
+  description: '',
+  price_small: '',
+  price_medium: '',
+  price_big: '',
 })
 const categoriesList = ref<{label: string, value: string}[]>([])
 
@@ -61,6 +66,21 @@ watch(() => props.show, (value) => {
   if(value){
     categoriesList.value = props.modules.map(module => {return {label: module.title, value: module.title}})
     categoriesList.value.unshift({label: 'Nenhuma', value: ''})
+    if(props.targetModule?.title){
+      module_name.value = props.targetModule.title
+    }else{
+      module_name.value = ''
+    }
+    
+
+    productFileImage.value = null
+    product.value.id = props.targetProduct?.id || 0
+    product.value.name = props.targetProduct?.name || ''
+    product.value.image = props.targetProduct?.image || ''
+    product.value.description = props.targetProduct?.description || ''
+    product.value.price_small = props.targetProduct?.price_small ? handleMaskMoney(props.targetProduct?.price_small+'') : ''
+    product.value.price_medium = props.targetProduct?.price_medium ? handleMaskMoney(props.targetProduct?.price_medium+'') : ''
+    product.value.price_big = props.targetProduct?.price_big ? handleMaskMoney(props.targetProduct?.price_big+'') : ''
   }
 })
 
@@ -91,6 +111,13 @@ const handleImageBeforeUpload = (data: { file: UploadFileInfo } | null) => {
   return true
 }
 
+const normalizeMoney = (value: string) => {
+  if(value.search(',') == -1){
+    return value + ',00'
+  }
+  return value
+}
+
 const handleSubmit = () => {
   if(product.value.id == 0 && !productFileImage.value){
     alert('O campo "Foto" é obrigatório.')
@@ -106,13 +133,19 @@ const handleSubmit = () => {
     dontReplaceImage: !productFileImage.value,
     name: product.value.name,
     description: product.value.description,
-    price_small: product.value.price_small ? parseInt(product.value.price_small.replace(/\D/g, '')) : 0,
-    price_medium: product.value.price_medium ? parseInt(product.value.price_medium.replace(/\D/g, '')) : 0,
-    price_big: product.value.price_big ?  parseInt(product.value.price_big.replace(/\D/g, '')) : 0,
+    price_small: product.value.price_small ? parseInt(normalizeMoney(product.value.price_small).replace(/\D/g, '')) : 0,
+    price_medium: product.value.price_medium ? parseInt(normalizeMoney(product.value.price_medium).replace(/\D/g, '')) : 0,
+    price_big: product.value.price_big ?  parseInt(normalizeMoney(product.value.price_big).replace(/\D/g, '')) : 0,
   }
 
   // console.log(formData)
   props.handleSave(formData, module_name.value, props.targetProduct, props.targetModule,() => emit('onClose'))
+}
+
+const deleteProduct = (id: number) => {
+  const confirm = window.confirm('Tem certeza que deseja apagar este produto?')
+  if(!confirm){return}
+  props.handleDelete(id, props.targetModule, () => emit('onClose'))
 }
 </script>
 
@@ -138,7 +171,7 @@ const handleSubmit = () => {
     </p>
 
     <form @submit.prevent>
-      <label for="photo">Foto do Produto
+      <label for="photo">Foto do Produto <span class="text-red-500">*</span>
         <n-upload
           @before-upload="handleImageBeforeUpload"
           @remove="handleImageBeforeUpload(null)"
@@ -160,7 +193,7 @@ const handleSubmit = () => {
         v-model:value="product.name"
       ></n-input>
 
-      <label for="description">Descrição</label>
+      <label for="description">Descrição <span class="text-red-500">*</span></label>
       <n-input
         class="mb-3"
         placeholder="Descrição do produto"
@@ -172,7 +205,6 @@ const handleSubmit = () => {
 
       <label for="category">Categoria</label>
       <n-select class="mb-3" id="category" v-model:value="module_name" :options="categoriesList" />
-      
       <label >Valor <span :class="'text-[12px] text-['+colorTheme+']'">(Preencha apenas o campo "Pequeno" para um preço fixo)</span></label>
       <n-input-group>
         <n-input-group-label :style="{ width: '80px' }">Pequeno</n-input-group-label>
@@ -207,6 +239,7 @@ const handleSubmit = () => {
     
     <template #footer>
       <div class="flex justify-end gap-2">
+        <n-button v-if="props.targetProduct?.id" type="error" @click="deleteProduct(props.targetProduct.id)">Apagar produto</n-button>
         <n-button type="primary" @click="handleSubmit" :loading="loading">Salvar</n-button>
         <n-button type="primary" ghost @click="emit('onClose')">Cancelar</n-button>
       </div>

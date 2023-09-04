@@ -16,7 +16,7 @@ import ModalBanner from '@/components/app/ModalBannerComponent.vue';
 import ModalInformation from '@/components/app/ModalInformationComponent.vue';
 import ModalProduct from '@/components/app/ModalProductComponent.vue';
 import { tryToFetchEstablishment, tryToSaveEstablishment, tryToFetchEstablishmentProducts } from '@/services/EstablishmentService';
-import { tryToCreateProduct, tryToSaveProduct } from '@/services/ProductService'
+import { tryToCreateProduct, tryToSaveProduct, tryToDeleteProduct } from '@/services/ProductService'
 import { ErrorHandler } from '@/utils/ErrorHandler';
 import { Brush } from '@vicons/ionicons5';
 import type { ProductFormData } from '@/types/Product';
@@ -254,6 +254,8 @@ const handleSaveProduct = async(
       await handleSave('modules')
       loading.finish()
       isLoading.value = false
+      targetProduct = null
+      targetModule = null
       callback && callback()
     }else if(res.error){
       loading.error()
@@ -269,11 +271,13 @@ const handleSaveProduct = async(
       if(productIndex != undefined && productIndex != -1){
         products.value[productIndex] = apiRes.data.product
       }
-      removeProductIdFromModule(targetProduct.id, moduleName)
+      removeProductIdFromModule(targetProduct.id, targetModule?.title ?? '')
       addProductIdToModule(apiRes.data.product.id, moduleName)
       await handleSave('modules')
       loading.finish()
       isLoading.value = false
+      targetProduct = null
+      targetModule = null
       callback && callback()
     }else if(res.error){
       loading.error()
@@ -281,13 +285,32 @@ const handleSaveProduct = async(
       ErrorHandler(res.error, notification)
     }
   }
+}
 
-  // if(moduleName.length > 0 && targetModule){
-  //   const moduleIndex = establishment.value?.store.modules.findIndex(module => module.title == moduleName)
-  //   if(moduleIndex != undefined && moduleIndex != -1){
-  //     establishment.value?.store.modules[moduleIndex].products.push(apiRes.data.product[0])
-  //   }
-  // }
+const handleDeleteProduct = async(  
+  productId: number, 
+  targetModule: Module | null,  
+  callback: Function | null
+) => {
+  loading.start()
+  isLoading.value = true
+  establishmentFormLoading.value = true
+  const res = await tryToDeleteProduct(authStore.token, establishmentId, productId)
+  if(res.success){
+    if(targetModule){
+      removeProductIdFromModule(productId, targetModule?.title ?? '')
+    }
+    isLoading.value = false
+    establishmentFormLoading.value = false
+    targetModule = null
+    products.value = products.value.filter(product => product.id != productId)
+    callback && callback()
+  }else if(res.error){
+    loading.error()
+    isLoading.value = false
+    establishmentFormLoading.value = false
+    ErrorHandler(res.error, notification)
+  }
 }
 
 const getEstablishment = async () => {
@@ -319,7 +342,7 @@ const getProducts = async (establishmentId: number, nextPage: number = 1) => {
     loading.finish()
     isLoading.value = false
     if(products.value.length < apiRes.total){
-      await getProducts(establishmentId, nextPage++)
+      await getProducts(establishmentId, nextPage+=1)
     }
   }else if(res.error){
     loading.error()
@@ -373,11 +396,14 @@ const getProducts = async (establishmentId: number, nextPage: number = 1) => {
         :openModal="() => { targetProduct = null; showProductModal = true }"
         :products="products" 
         :colorTheme="colorTheme"
+        :modules="establishment?.store.modules ?? []"
+        :onClickItem="(product: Product, module: Module | null) => { targetProduct = product; targetModule = module; showProductModal = true }"
       />
     </div>
   </div>
 
   <ModalProduct
+    :handleDelete="handleDeleteProduct"
     :colorTheme="colorTheme"
     :handle-save="handleSaveProduct"
     :loading="establishmentFormLoading"

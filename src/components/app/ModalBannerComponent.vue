@@ -71,6 +71,7 @@ defineProps<{
           />
         </div>
       </form>
+      {{ JSON.stringify(bannerSection)  }}
       
       <template #footer>
         <div class="flex justify-end gap-2">

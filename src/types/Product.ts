@@ -1,5 +1,5 @@
 type ProductFormData = {
-    image: File | null,
+    image: File | Blob | null,
     dontReplaceImage: boolean,
     name: string,
     description: string,

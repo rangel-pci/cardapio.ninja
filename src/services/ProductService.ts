@@ -16,7 +16,7 @@ const tryToCreateProduct = async (token: string | undefined, establishmentId: nu
 
 const tryToSaveProduct = async (token: string | undefined, establishmentId: number, productId: number, form: ProductFormData): Promise<DefaultServiceResponse> => {
     if(!token){ return {success: false, data: { message: 'Token não informado'}} }
-    return await ApiService.put('/establishments/' + establishmentId + '/products/' + productId, form, { headers: { Authorization: `Bearer ${token}`, "Content-Type": 'multipart/form-data' } })
+    return await ApiService.post('/establishments/' + establishmentId + '/products/' + productId, form, { headers: { Authorization: `Bearer ${token}`, "Content-Type": 'multipart/form-data' } })
     .then(res => {
         return { success: true, data: res.data }
     })
@@ -25,7 +25,18 @@ const tryToSaveProduct = async (token: string | undefined, establishmentId: numb
     })
 }
 
+const tryToDeleteProduct = async (token: string | undefined, establishmentId: number, productId: number): Promise<DefaultServiceResponse> => {
+    if(!token){ return {success: false, data: { message: 'Token não informado'}} }
+    return await ApiService.delete('/establishments/' + establishmentId + '/products/' + productId, { headers: { Authorization: `Bearer ${token}` } })
+    .then(res => {
+        return { success: true, data: res.data }
+    })
+    .catch((error: AxiosError) => {
+      return { error: error }
+    })
+}
 export {
     tryToCreateProduct,
-    tryToSaveProduct
+    tryToSaveProduct,
+    tryToDeleteProduct
 }

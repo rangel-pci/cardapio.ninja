@@ -15,7 +15,7 @@ type InformationSection = {
         }[],
         telephone?: string,
         whatsapp?: string,
-    }
+    },
 }
 type EstablishmentFormData = {
     image?: File,
