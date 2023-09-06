@@ -34,6 +34,11 @@ const router = createRouter({
       meta: { requiresAuth: true, title: 'Gerenciar Cardápio' },
       component: () => import('../views/app/establishment/IndexView.vue')
     },
+    {
+      path: '/:link_name',
+      name: 'visit-page',
+      component: () => import('../views/app/visitPage/IndexView.vue')
+    },
     { path: '/:catchAll(.*)', redirect: { name: 'home' } },
   ]
 })

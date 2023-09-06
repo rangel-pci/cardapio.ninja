@@ -7,7 +7,7 @@ import { computed } from 'vue';
 
 const props = defineProps<{
     products: Product[],
-    openModal: () => void,
+    openModal?: () => void,
     colorTheme: string,
     modules: Module[],
     onClickItem: (product: Product, module: Module | null) => void,
@@ -35,7 +35,7 @@ const getGroupedProducts = computed(() => {
 <template>
     <div class="w-full px-4 relative">
         <div class="bg-white p-4 flex flex-col" style="overflow-x: auto;">
-            <n-button type="primary" class="self-end flex gap-1 py-4" @click="openModal">
+            <n-button v-if="openModal" type="primary" class="self-end flex gap-1 py-4" @click="openModal">
                 <template #icon>
                     <n-icon size="25"><AddCircleOutline /></n-icon>
                 </template>
@@ -45,9 +45,9 @@ const getGroupedProducts = computed(() => {
 
             <div class="flex flex-col gap-2 mt-4" v-if="products.length > 0">
                 <template v-for="category in getSorted(modules)" :key="TextToId(category.title)">
-                    <div class="border rounded p-2 bg-slate-100 mb-4">   
+                    <div class="border rounded p-2 bg-slate-100 mb-4" :id="TextToId(category.title)">   
                         <h2 class="text-lg font-bold text-neutral-800 mb-2">{{ category.title }}</h2>
-                        <div class="md:grid md:grid-cols-2 gap-2">
+                        <div class="md:grid md:grid-cols-2 gap-6">
                             <template v-for="groupedProduct in getGroupedProducts(category)" :key="groupedProduct">
                                 <ProductItem @click="onClickItem(groupedProduct, category)" :colorTheme="colorTheme" :product="groupedProduct"/>    
                             </template>
@@ -56,7 +56,7 @@ const getGroupedProducts = computed(() => {
                 </template>
                 <div v-if="getNonGroupedProducts.length > 0" class="border rounded p-2 bg-slate-100 mb-4">
                     <h2 class="text-lg font-bold text-neutral-800 mb-2">Sem categoria</h2>
-                    <div class="md:grid md:grid-cols-2 gap-2">
+                    <div class="md:grid md:grid-cols-2 gap-6">
                         <template v-for="nonGroupedProduct in getNonGroupedProducts" :key="nonGroupedProduct.id">
                             <ProductItem @click="onClickItem(nonGroupedProduct, null)" :colorTheme="colorTheme" :product="nonGroupedProduct"/>    
                         </template>

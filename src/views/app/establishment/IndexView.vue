@@ -20,12 +20,13 @@ import { tryToCreateProduct, tryToSaveProduct, tryToDeleteProduct } from '@/serv
 import { ErrorHandler } from '@/utils/ErrorHandler';
 import { Brush } from '@vicons/ionicons5';
 import type { ProductFormData } from '@/types/Product';
+import { IsOpen } from '@/utils/IsOpen';
 
 onMounted(() => {
   getEstablishment()
 })
 const intervalIsOpen = setInterval(function(){
-  isOpen.value = setIsOpen()
+  isOpen.value = IsOpen(establishment.value?.store.contact?.open_close ?? [])
 }, 1000);
 onUnmounted(() => {
   clearInterval(intervalIsOpen)
@@ -79,33 +80,7 @@ const colorTheme = computed(() => {
   const color = establishment.value?.store?.theme ?? '#6C5CE7'
   return color
 })
-const setIsOpen = () => {
-  const now = new Date()
-  const day = now.getDay()
-  const hour = now.getHours()
-  const minute = now.getMinutes()
-  const open = establishment.value?.store?.contact?.open_close[day].open
-  const close = establishment.value?.store?.contact?.open_close[day].close
-  if(!open || !close){
-    return false
-  }
 
-  const openHour = new Date(open).getHours()
-  const openMinute = new Date(open).getMinutes()
-  const closeHour = new Date(close).getHours()
-  const closeMinute = new Date(close).getMinutes()
-
-  if(hour >= openHour && hour <= closeHour){
-    if(hour == openHour && minute < openMinute){
-      return false
-    }
-    if(hour == closeHour && minute > closeMinute){
-      return false
-    }
-    return true
-  }
-  return false
-}
 const openBannerSectionModal = () => {
   bannerSection.name = establishment.value?.name ?? ''
   bannerSection.image = null
