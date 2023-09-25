@@ -21,7 +21,7 @@ const scrollToElement = (id: string) => {
 
 <template>
     <div class="w-full px-4 relative">
-        <div :class="`bg-white p-4 flex gap-2  ${visitPage ? 'shadow-md shadow-neutral-300 border' : ''}`" style="overflow-x: auto;">
+        <div :class="`bg-white p-4 flex gap-2  ${visitPage ? 'shadow-md shadow-slate-400 border' : ''}`" style="overflow-x: auto;">
             <template v-for="category in modules" :key="TextToId(category.title)">
                 <div class="rounded">
                 

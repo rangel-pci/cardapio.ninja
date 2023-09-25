@@ -4,7 +4,7 @@ import { onMounted, ref, computed, onUnmounted } from 'vue';
 import { useLoadingBar } from 'naive-ui'
 import { tryToFetchVisitPage } from '@/services/visitPage/VisitPageService'
 import type { ApiResponseEstablishment, Establishment, Module, Product } from '@/types/Api'
-import {FastFoodOutline} from '@vicons/ionicons5'
+import {Cart, FastFoodOutline} from '@vicons/ionicons5'
 import router from '@/router/index';
 import EstablishmentBanner from '@/components/app/EstablishmentBannerComponent.vue';
 import EstablishmentInformation from '@/components/app/EstablishmentInformationComponent.vue';
@@ -12,7 +12,9 @@ import { IsOpen } from '@/utils/IsOpen';
 import EstablishmentCategories from '@/components/app/EstablishmentCategoriesComponent.vue';
 import EstablishmentProducts from '@/components/app/EstablishmentProductsComponent.vue';
 import ModalProduct from '@/components/app/visitPage/ModalProductDetailsComponent.vue';
+import ModalOrder from '@/components/app/visitPage/ModalOrderComponent.vue';
 import { useCartStore } from '@/stores/visitPage/CartStore';
+import { FormatMoneyBRL } from '@/utils/FormatMoneyBRL';
     
     const route = useRoute()
     const loading = useLoadingBar()
@@ -24,6 +26,7 @@ import { useCartStore } from '@/stores/visitPage/CartStore';
     const targetModule = ref<Module | null>(null)
     const targetProduct = ref<Product | null>(null)
     const showProductModal = ref(false)
+    const showOrderModal = ref(false)
     const cartStore = useCartStore()
 
     onMounted(async () => {
@@ -79,15 +82,15 @@ import { useCartStore } from '@/stores/visitPage/CartStore';
 </script>
 
 <template>
-    <div v-if="isLoading" class="h-screen p-4 flex items-center justify-center">
+    <div v-if="isLoading" class="flex items-center justify-center h-screen p-4">
         <n-card class="max-w-sm text-center text-neutral-800">
             <h5 class="font-semibold">Carregando cardápio...</h5>
             <div class="flex justify-center mt-2">
-                <FastFoodOutline width="20" class="animate-ping text-green-500" />
+                <FastFoodOutline width="20" class="text-green-500 animate-ping" />
             </div>
         </n-card>
     </div>
-    <div v-else-if="establishment" ref="containerRef" class="bg-gray-200 min-h-screen pb-4 flex flex-col items-center">
+    <div v-else-if="establishment" ref="containerRef" class="flex flex-col items-center min-h-screen pb-16 bg-gray-200">
         <EstablishmentBanner :establishment="establishment" :colorTheme="colorTheme"/>
         <div class="mx-auto main-container">
             <EstablishmentInformation
@@ -102,7 +105,7 @@ import { useCartStore } from '@/stores/visitPage/CartStore';
             />
 
             <EstablishmentCategories
-                class="mt-8 mb-8 sticky top-0 z-10"
+                class="sticky top-0 z-10 mt-8 mb-8"
                 visit-page
                 :modules=" establishment.store.modules" 
                 :colorTheme="colorTheme"
@@ -123,6 +126,20 @@ import { useCartStore } from '@/stores/visitPage/CartStore';
             @onClose="() => { showProductModal = false; }"
         />
 
-        <div v-if="cartStore.cartItems.length > 0">aaaa</div>
+        <ModalOrder
+            :colorTheme="colorTheme"
+            :show="showOrderModal"
+            @onClose="() => { showOrderModal = false; }"
+        />
+
+        <div v-if="cartStore.cartItems.filter(item => item.quantity > 0).length > 0" class="fixed bottom-4 left-0 w-full flex justify-center">
+            <button @click="showOrderModal = true" :class="`bg-[${colorTheme}] p-2 text-white rounded-2xl flex justify-between gap-4 w-full max-w-md text-lg mx-2 shadow-md shadow-slate-400`">
+                <span :class="`bg-white rounded-xl text-[${colorTheme}] px-2 flex items-center gap-1`">
+                    <n-icon :color="colorTheme" size="16"><Cart/></n-icon>{{ cartStore.cartTotalItems }}
+                </span>
+                Finalizar Pedido
+                <span class="font-bold">{{ FormatMoneyBRL(cartStore.cartTotal) }}</span>
+            </button>
+        </div>
     </div>
 </template>

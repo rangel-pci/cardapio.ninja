@@ -20,6 +20,12 @@ export const useCartStore = defineStore('cart', () => {
       return total + item.getTotalPrice(item.size, item.product, item.quantity)
     }, 0)
   })
+
+  const cartTotalItems = computed(() => {
+    return cartItems.value.reduce((total, item) => {
+      return total + item.quantity
+    }, 0)
+  })
   
   const addProduct = (product: Product, quantity: number, size: Size) => {
     const item = cartItems.value.find(item => item.product.id === product.id && item.size === size)
@@ -57,12 +63,18 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  const removeProduct = (product: Product, quantity: number, size: Size) => {
-    const item = cartItems.value.find(item => item.product.id === product.id && item.size === size)
-    if(item){
-      item.quantity -= quantity
-    }
+  const removeProduct = (product: Product, size: Size) => {
+    cartItems.value = cartItems.value.filter(item => {
+      if(item.product.id === product.id){
+        if(item.size === size){
+          return false
+        }else{
+          return true
+        }
+      }
+      return true
+    })
   }
 
-  return { cartItems, addProduct, cartTotal, removeProduct}
+  return { cartItems, addProduct, cartTotal, cartTotalItems, removeProduct}
 })

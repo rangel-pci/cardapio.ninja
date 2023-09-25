@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { Product } from '@/types/Api';
-import { useAuthStore } from '../../stores/AuthStore';
+import { useAuthStore } from '@/stores/AuthStore';
 import { Brush } from '@vicons/ionicons5';
+import { FormatMoneyBRL } from '@/utils/FormatMoneyBRL';
 
 defineProps<{
     product: Product | undefined,
@@ -14,9 +15,6 @@ const truncate = (text: string, length: number) => {
     return text.length > length ? text.substring(0, length) + '...' : text;
 }
 
-const formatMoney = (value: number) => {
-    return value.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'})
-}
 </script>
 
 <template>
@@ -37,12 +35,12 @@ const formatMoney = (value: number) => {
             || (product.price_small && product.price_small > 0 && product.price_big && product.price_big > 0)" 
                 class="font-bold text-lg pl-4 p-2 bg-white border-t text-neutral-800"
             >
-                <span class="text-sm font-normal">a partir de </span>{{ formatMoney(product.price_small/100) }}
+                <span class="text-sm font-normal">a partir de </span>{{ FormatMoneyBRL(product.price_small) }}
             </div>
             <div v-else-if="product.price_small && product.price_small > 0" 
                 class="font-bold text-lg pl-4 p-2 bg-white border-t text-neutral-800"
             >
-                {{ formatMoney(product.price_small/100) }}
+                {{ FormatMoneyBRL(product.price_small) }}
             </div>
             <div v-else 
                 class="font-bold text-lg pl-4 p-2 bg-white border-t text-neutral-800"

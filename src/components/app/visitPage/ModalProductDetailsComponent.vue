@@ -2,7 +2,8 @@
 import { Cart, Close } from '@vicons/ionicons5'
 import type { Product } from '@/types/Api'
 import { ref, watch } from 'vue';
-import { useCartStore } from '../../../stores/visitPage/CartStore';
+import { useCartStore } from '@/stores/visitPage/CartStore';
+import { FormatMoneyBRL } from '@/utils/FormatMoneyBRL';
 
 const props = defineProps<{
   show: boolean,
@@ -23,19 +24,15 @@ const sizeOptions = ref<{ label: string, value: 'small' | 'medium' | 'big' }[]>(
 ])
 const quantity = ref(1)
 
-const formatMoney = (value: number) => {
-  return value.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'})
-}
-
 watch(() => props.show, (value) => {
   if(value){
     quantity.value = 1
     if(props.targetProduct?.price_small && props.targetProduct?.price_medium && props.targetProduct?.price_big){
       size.value = 'small'
       sizeOptions.value = [
-        { label: 'Pequeno ' + formatMoney(props.targetProduct.price_small/100), value: 'small' },
-        { label: 'Médio ' + formatMoney(props.targetProduct.price_medium/100), value: 'medium' },
-        { label: 'Grande ' + formatMoney(props.targetProduct.price_big/100), value: 'big' },
+        { label: 'Pequeno ' + FormatMoneyBRL(props.targetProduct.price_small), value: 'small' },
+        { label: 'Médio ' + FormatMoneyBRL(props.targetProduct.price_medium), value: 'medium' },
+        { label: 'Grande ' + FormatMoneyBRL(props.targetProduct.price_big), value: 'big' },
       ]
     }else if(props.targetProduct?.price_medium && props.targetProduct?.price_big){
       size.value = 'medium'
@@ -133,7 +130,7 @@ const handleSubmit = () => {
             <template #icon>
               <n-icon><Cart /></n-icon>
             </template>
-            <p class="text-white">Adicionar <span class="font-semibold text-lg">{{ formatMoney((getPrice() / 100) * quantity) }}</span></p>
+            <p class="text-white">Adicionar <span class="font-semibold text-lg">{{ FormatMoneyBRL(getPrice() * quantity) }}</span></p>
           </n-button>
         </div>
       </div>
