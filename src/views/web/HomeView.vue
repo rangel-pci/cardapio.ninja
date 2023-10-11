@@ -59,10 +59,16 @@
       </div>
 
       <div class="pt-2 lg:pt-40 lg:min-h-screen">
-        <div class="bg-white px-4 py-8 lg:p-8 rounded flex flex-col lg:flex-row lg:h-[550px] mx-auto main-container">
+        <div class="bg-white px-4 py-8 lg:p-8 rounded flex flex-col lg:flex-row lg:h-[550px] mx-auto main-container relative">
           <div class="my-auto lg:w-6/12">
             <h1 class="font-bold text-2xl lg:text-5xl text-center lg:text-left">Digitalize seu cardápio com facilidade e destaque-se online</h1>
-            <p class="mt-4 lg:text-lg  text-center lg:text-left lg:w-3/4">Expanda seu alcance e receba pedidos pelo <span class="text-green-600">WhatsApp</span> com um cardápio online eficiente e sem complicações.</p>
+            <p class="mt-4 lg:text-lg  text-center lg:text-left lg:w-3/4 mb-8">Expanda seu alcance e receba pedidos pelo <span class="text-green-600">WhatsApp</span> com um cardápio online eficiente e sem complicações.</p>
+
+            <a href="/reidachapa" target="_blank">
+              <div class="bg-[#6C5CE7] text-white w-fit py-4 px-8 rounded animate-bounce text-lg">
+                Acessar demonstração (Rei da Chapa)
+              </div>
+            </a>
           </div>
           <div>
             <img 
