@@ -39,7 +39,6 @@ const options = [
     icon: renderIcon(LogOutOutline)
   }
 ]
-
 </script>
 
 <template>

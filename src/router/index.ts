@@ -26,13 +26,25 @@ const router = createRouter({
       path: '/app/minha-area',
       name: 'my-area',
       meta: { requiresAuth: true, title: 'Meus cardápios' },
-      component: () => import('../views/app/home/IndexView.vue')
+      component: () => import('../views/app/account/HomeView.vue')
+    },
+    {
+      path: '/app/minha-conta',
+      name: 'my-account',
+      meta: { requiresAuth: true, title: 'Minha conta' },
+      component: () => import('../views/app/account/MyAccountView.vue')
     },
     {
       path: '/app/gerenciar/:id',
       name: 'manage-establishment',
-      meta: { requiresAuth: true, title: 'Gerenciar Cardápio' },
+      meta: { requiresAuth: true, title: 'Gerenciar cardápio' },
       component: () => import('../views/app/establishment/IndexView.vue')
+    },
+    {
+      path: '/app/alterar-senha',
+      name: 'recover-password',
+      meta: { title: 'Recuperar senha' },
+      component: () => import('../views/app/RecoverPasswordView.vue')
     },
     {
       path: '/:link_name',

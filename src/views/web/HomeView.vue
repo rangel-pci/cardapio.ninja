@@ -101,7 +101,7 @@
             <div class="flex-1 flex items-center justify-center max-h-[255px]">
               <img class="my-auto h-44 lg:h-auto" src="@/assets/img/web/items-3d.png" alt="Personalização">
             </div>
-            <p>Adicione produtos ou serviços e personalize de acordo com seu estilo.</p>
+            <p>Adicione produtos ou serviços e personalize de acordo com o seu estilo.</p>
           </div>
           <div class="border rounded lg:shadow-none flex flex-col px-2 py-4">
             <div class="flex-1 flex items-center justify-center max-h-[255px]">

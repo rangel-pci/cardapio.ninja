@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
-import type { Product } from '@/types/Api';
+import type { Establishment, Product } from '@/types/Api';
 import { computed, ref } from 'vue';
+import { FormatMoneyBRL } from '@/utils/FormatMoneyBRL';
 
 type Size = 'small' | 'medium' | 'big'| null
 interface CartItem {
@@ -11,12 +12,21 @@ interface CartItem {
   getTotalPrice: (size: Size, product: Product, quantity: number) => number,
 }
 
+interface DeliveryInfo {
+  name: string,
+  phone: string,
+  cep: string,
+  address: string,
+  note: string,
+  number: number | null,
+}
+
 export const useCartStore = defineStore('cart', () => {
   const cartItems = ref<CartItem[]>([])
+  const deliveryInfo = ref(getDeliveryInfo())
   
   const cartTotal = computed(() => {
     return cartItems.value.reduce((total, item) => {
-      console.log(item.size, item.product, item.quantity)
       return total + item.getTotalPrice(item.size, item.product, item.quantity)
     }, 0)
   })
@@ -76,5 +86,68 @@ export const useCartStore = defineStore('cart', () => {
     })
   }
 
-  return { cartItems, addProduct, cartTotal, cartTotalItems, removeProduct}
+  function getDeliveryInfo(): DeliveryInfo {
+    const info = localStorage.getItem('deliveryInfo')
+    if(info){
+      return JSON.parse(info)
+    }
+
+    return {
+      name: '',
+      phone: '',
+      address: '',
+      cep: '',
+      number: null,
+      note: '',
+    }
+  }
+
+  const saveDeliveryInfo = (info: DeliveryInfo) => {
+    deliveryInfo.value = info
+    localStorage.setItem('deliveryInfo', JSON.stringify(info))
+  }
+
+  const mountWhatsAppOrder = (establishment: Establishment): string => {
+    let items = ''
+    const getSize = (size: Size) => {
+      if(size === 'small'){
+        return 'Pequeno'
+      }else if(size === 'medium'){
+        return 'Médio'
+      }else if(size === 'big'){
+        return 'Grande'
+      }else{
+        return 'Único'
+      }
+    }
+    cartItems.value.forEach(item => {
+      items += 
+`\n*${item.quantity}x${getSize(item.size)}* - ${item.product.name}
+*Valor*: ${FormatMoneyBRL(item.getTotalPrice(item.size, item.product, item.quantity))}`
+    })
+
+    const message = `
+🏷️ *Novo pedido via ${import.meta.env.VITE_APP_NAME_NORMALIZED}*
+Página: _*${establishment.name}*_
+-------------------------------
+🛍 *Produtos:*
+${items}
+-------------------------------
+💰 *Total:* ${FormatMoneyBRL(cartTotal.value)}
+-------------------------------
+🧑 *Cliente:* ${deliveryInfo.value.name}
+-------------------------------
+📞 *Telefone:* ${deliveryInfo.value.phone}
+-------------------------------
+🚚 *Endereço:* ${deliveryInfo.value.address}, Nº ${deliveryInfo.value.number}, ${deliveryInfo.value.cep}
+-------------------------------
+📝 *Observação:* ${deliveryInfo.value.note}
+-------------------------------
+🕒 _*Aguardando confirmação do estabelecimento*_
+${new Date().toLocaleDateString()}
+`
+    return message
+  }
+
+  return { cartItems, addProduct, cartTotal, cartTotalItems, removeProduct, deliveryInfo, saveDeliveryInfo, mountWhatsAppOrder}
 })

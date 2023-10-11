@@ -95,9 +95,18 @@ type DefaultServiceResponse = {
   data?: any,
   error?: AxiosError,
 }
+type ResponseProfile = {
+  id: number,
+  name: string,
+  email: string,
+  created_at: string,
+  updated_at: string,
+  plan_id: string,
+}
 
 
 export type {
+  ResponseProfile,
   ResponseDefault,
   ResponseLogin,
   ResponseEstablishment,

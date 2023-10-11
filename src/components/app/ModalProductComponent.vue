@@ -130,7 +130,7 @@ const handleSubmit = () => {
 
   const formData:ProductFormData = {
     image: productFileImage.value,
-    dontReplaceImage: !productFileImage.value,
+    dontReplaceImage: productFileImage.value ? undefined : true,
     name: product.value.name,
     description: product.value.description,
     price_small: product.value.price_small ? parseInt(normalizeMoney(product.value.price_small).replace(/\D/g, '')) : 0,

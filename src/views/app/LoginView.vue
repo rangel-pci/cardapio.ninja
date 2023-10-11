@@ -60,6 +60,10 @@ const handleLogin = async () => {
           placeholder=""
           v-model:value="account.password"
         />
+
+        <div class="text-right">
+          <RouterLink :to="{ name: 'recover-password' }" class="text-green-600 underline">Esqueci minha senha</RouterLink>
+        </div>
         
         <div class="flex justify-center mt-2">
           <n-button type="primary" class="flex-1" @click="handleLogin" :loading="isLoading">Entrar</n-button>
@@ -69,4 +73,4 @@ const handleLogin = async () => {
 
     <p class="mt-4">Ainda não tem uma conta? <RouterLink :to="{ name: 'register' }" class="text-green-600 underline">Cadastre-se</RouterLink></p>
   </div>
-</template>@/stores/AuthStore
+</template>

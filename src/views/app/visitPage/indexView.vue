@@ -127,6 +127,7 @@ import { FormatMoneyBRL } from '@/utils/FormatMoneyBRL';
         />
 
         <ModalOrder
+            :establishment="establishment"
             :colorTheme="colorTheme"
             :show="showOrderModal"
             @onClose="() => { showOrderModal = false; }"

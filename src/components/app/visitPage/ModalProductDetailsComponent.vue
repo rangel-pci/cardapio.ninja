@@ -97,8 +97,8 @@ const handleSubmit = () => {
         <img :src="targetProduct?.image" alt="imagem do produto" class="w-full h-full object-contain md:object-cover">
       </div>
 
-      <h3 class="text-2xl pt-2 font-bold px-2 text-neutral-800 border-t">{{ props.targetProduct.name }}</h3>
-      <p class="mt-4 px-2 text-neutral-600 pb-2">{{ props.targetProduct.description }}</p>
+      <h3 class="text-2xl pt-2 font-bold px-4 text-neutral-800 border-t">{{ props.targetProduct.name }}</h3>
+      <p class="mt-4 px-4 text-neutral-600 pb-2">{{ props.targetProduct.description }}</p>
     </div>
 
     <div class="w-full fixed bottom-0 overflow-hidden left-0 right-0 flex justify-center bg-white md:bg-transparent">
@@ -116,11 +116,11 @@ const handleSubmit = () => {
             <div :class="`bg-[${colorTheme}] text-white flex items-center justify-center px-2 rounded`" style="max-width: 100px;">
               Quantidade
             </div>
-            <n-button type="error" @click="quantity >= 2 ? quantity-- : null" size="large" style="width: 24%;">
+            <n-button secondary type="primary" @click="quantity >= 2 ? quantity-- : null" size="large" style="width: 24%;">
               -
             </n-button>
             <n-input-number size="large" v-model:value="quantity" :show-button="false" style="text-align: center;"/>
-            <n-button size="large" type="primary" :color="colorTheme" @click="quantity++" style="width: 24%;">
+            <n-button size="large" secondary type="primary" @click="quantity++" style="width: 24%;">
               +
             </n-button>
           </n-input-group>

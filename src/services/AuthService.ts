@@ -22,7 +22,29 @@ const tryToRefreshToken = async (token: string): Promise<DefaultServiceResponse>
     })
 }
 
+const tryToSendRecoverPasswordToken = async (email: string): Promise<DefaultServiceResponse> => {
+    return await ApiService.post('/password/email', { email })
+    .then(res => {
+        return { success: true, data: res.data }
+    })
+    .catch((error: AxiosError) => {
+        return { error: error }
+    })
+}
+
+const tryToRecoverPassword = async (email: string, password: string, token: string): Promise<DefaultServiceResponse> => {
+    return await ApiService.post('/password/reset', { email, password, token })
+    .then(res => {
+        return { success: true, data: res.data }
+    })
+    .catch((error: AxiosError) => {
+        return { error: error }
+    })
+}
+
 export {
     tryToLogin,
-    tryToRefreshToken
+    tryToRefreshToken,
+    tryToSendRecoverPasswordToken,
+    tryToRecoverPassword
 }

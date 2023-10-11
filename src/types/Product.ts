@@ -1,6 +1,6 @@
 type ProductFormData = {
     image: File | Blob | null,
-    dontReplaceImage: boolean,
+    dontReplaceImage: boolean | undefined,
     name: string,
     description: string,
     price_small: number,
