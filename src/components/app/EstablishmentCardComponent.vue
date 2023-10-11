@@ -12,7 +12,7 @@ import { Brush } from '@vicons/ionicons5';
     <n-card  v-if="loading" class="max-w-[250px] mx-4 mt-8">
         <n-space vertical>
             <n-skeleton height="150px" width="100%" />
-            <n-skeleton height="20px" width="50%" />
+            <n-skeleton class="mx-auto" height="20px" width="50%" />
             <n-skeleton height="25px" width="100%" />
         </n-space>
     </n-card>

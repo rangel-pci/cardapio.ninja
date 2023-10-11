@@ -6,8 +6,8 @@
   <div class="bg-gray-100 overflow-hidden" id="inicio">
     <header class="container mx-auto bg-white lg:fixed top-0 left-0 w-full z-10 shadow-md">
       <nav id="nav" class="mx-auto flex justify-between px-4 main-container">
-        <a href="/" class="pt-6 pb-6">
-          <img src="@/assets/img/logo/logo_1.svg" class="rounded" :alt="APP_NAME + ' logo'" :title="APP_NAME" width="50">
+        <a href="/" class="py-3">
+          <img src="@/assets/img/logo/logo-no-background.svg" class="w-[150px] md:w-[280px]" :alt="APP_NAME + ' logo'" :title="APP_NAME">
         </a>
         <div class="flex align-items-center font-medium lg:hidden">
           <RouterLink :to="{ name: 'login' }" class="my-auto ">
@@ -142,8 +142,19 @@
               </div>
             </div>
           </div>
-          <div class="p-2 mt-16 lg:mt-28 lg:mb-16 flex items-center justify-center col-span-3">
-            <p class="text-4xl font-bold opacity-40 text-[#6C5CE7]">100% Gratuito!</p>
+          <div class="p-2 mt-16 lg:mt-28 lg:mb-16 grid md:grid-flow-col md:grid-cols-3 gap-4 opacity-80">
+            <n-card class="shadow-xl">
+              <n-rate readonly :default-value="5" />
+              <p class="font-medium">Ótima plataforma para quem trabalha com Fast-food</p>
+            </n-card>
+            <n-card class="shadow-xl">
+              <n-rate readonly :default-value="5" />
+              <p class="font-medium">Adorei criar meu cardápio aqui</p>
+            </n-card>
+            <n-card class="shadow-xl">
+              <n-rate readonly :default-value="4" />
+              <p class="font-medium">Gostaria de mais modelos de design, mas ainda assim é útil para criar cardápios</p>
+            </n-card>
           </div>
         </div>
       </section>

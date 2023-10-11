@@ -24,6 +24,7 @@ const form = reactive({
 
 const getProfile = async () => {
   loading.start()
+  isLoading.value = true
   const res = await tryToGetLoggedProfile(authStore.token)
   if(res.success){
     const apiRes = res.data as ResponseProfile
@@ -34,6 +35,7 @@ const getProfile = async () => {
     loading.error()
     ErrorHandler(res.error, notification)
   }
+  isLoading.value = false
 }
 
 const handleSubmit = async () => {
@@ -56,7 +58,7 @@ const handleSubmit = async () => {
   <Header />
   <div class="bg-gray-200 min-h-screen flex flex-col px-4 items-center">
     <n-card title="Minha conta" class="max-w-sm mt-8">
-      <form>
+      <form v-if="!isLoading">
         <label for="email">Nome</label>
         <n-input
           class="mb-3"
@@ -90,6 +92,15 @@ const handleSubmit = async () => {
           <n-button type="primary" class="flex-1" @click="handleSubmit" :loading="isLoading">Salvar</n-button>
         </div>
       </form>
+
+      <n-space v-else vertical>
+        <n-skeleton class="mt-1" height="15px" width="20%" />
+        <n-skeleton height="25px" width="100%" />
+        <n-skeleton class="mt-1" height="15px" width="20%" />
+        <n-skeleton height="25px" width="100%" />
+        <n-skeleton class="mt-1" height="15px" width="20%" />
+        <n-skeleton height="25px" width="100%" />
+      </n-space>
     </n-card>
   </div>
 </template>
